@@ -1,0 +1,7391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NAS220 Manager</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#08111d;
+    color:#eaf4ff;
+}
+
+.header{
+    padding:22px 28px;
+    background:linear-gradient(135deg,#0d1b2a,#102b42);
+    border-bottom:1px solid #24445f;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+}
+
+.title{
+    font-size:28px;
+    font-weight:800;
+    letter-spacing:1px;
+}
+
+.subtitle{
+    color:#8daac0;
+    margin-top:5px;
+}
+
+.refresh{
+    border:1px solid #347da8;
+    background:#0e2639;
+    color:#dff4ff;
+    border-radius:8px;
+    padding:10px 16px;
+    cursor:pointer;
+}
+
+.refresh:hover{
+    background:#163d57;
+}
+
+.container{
+    max-width:1500px;
+    margin:auto;
+    padding:20px;
+}
+
+.section-title{
+    margin:22px 0 12px;
+    font-size:17px;
+    color:#76c7ff;
+    letter-spacing:1px;
+}
+
+
+.listening-ports-grid{
+    display:block;
+    width:100%;
+}
+
+.listening-ports-card{
+    width:100%;
+    max-width:100%;
+    padding:10px 12px;
+}
+
+.listening-ports-items{
+    display:flex;
+    justify-content:center;
+    width:100%;
+    max-width:100%;
+}
+
+.listening-port-item{
+    min-width:110px;
+    min-height:72px;
+    padding:8px 10px;
+    display:flex;
+    flex:0 0 110px;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    border-right:1px solid #203b50;
+}
+
+.listening-port-item:last-child{
+    border-right:0;
+}
+
+@media(max-width:900px){
+    .listening-port-item{
+        min-width:100px;
+        flex-basis:100px;
+    }
+}
+
+@media(max-width:600px){
+    .listening-ports-card{
+        max-width:100%;
+        overflow-x:auto;
+    }
+
+    .listening-ports-items{
+        justify-content:center;
+        flex-wrap:nowrap;
+    }
+
+    .listening-port-item{
+        min-width:100px;
+        flex-basis:100px;
+    }
+}
+
+.listening-port-protocol{
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.5px;
+    white-space:nowrap;
+}
+
+.listening-port-item .badge{
+    font-size:9px;
+    padding:4px 8px;
+}
+
+.listening-port-number{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    white-space:nowrap;
+}
+
+.listening-port-number span{
+    color:#87a1b5;
+    font-size:10px;
+}
+
+.listening-port-number strong{
+    font-size:15px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:14px;
+}
+
+.card{
+    background:#0d1b2a;
+    border:1px solid #203b50;
+    border-radius:12px;
+    padding:17px;
+    box-shadow:0 5px 20px rgba(0,0,0,.18);
+}
+
+.card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.card-title{
+    font-size:18px;
+    font-weight:700;
+}
+
+.badge{
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.good{
+    background:#123d2d;
+    color:#56f3a4;
+}
+
+.warn{
+    background:#493a13;
+    color:#ffd76b;
+}
+
+.bad{
+    background:#491b25;
+    color:#ff788d;
+}
+
+.neutral{
+    background:#243342;
+    color:#9eb2c4;
+}
+
+.metric{
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px solid #1b3041;
+    padding:8px 0;
+}
+
+.metric:last-child{
+    border-bottom:0;
+}
+
+.label{
+    color:#87a1b5;
+}
+
+.value{
+    font-weight:bold;
+}
+
+.progress{
+    height:8px;
+    background:#182a38;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:12px;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:#36c2ff;
+    transition:.4s;
+}
+
+/* =========================================================
+   DISK HEALTH COLORS
+   ========================================================= */
+
+.progress.health-excellent .progress-bar{
+    background:#00e676;
+}
+
+.progress.health-good .progress-bar{
+    background:#56f3a4;
+}
+
+.progress.health-warning .progress-bar{
+    background:#ffd76b;
+}
+
+.progress.health-critical .progress-bar{
+    background:#ff4d6d;
+}
+
+.progress.health-unknown .progress-bar{
+    background:#6b7c8f;
+}
+
+.health-excellent{
+    color:#00e676;
+}
+
+.health-good{
+    color:#56f3a4;
+}
+
+.health-warning{
+    color:#ffd76b;
+}
+
+.health-critical{
+    color:#ff4d6d;
+}
+
+.health-unknown{
+    color:#9eb2c4;
+}
+
+.server-meta{
+    color:#7892a7;
+    font-size:12px;
+    margin-top:6px;
+}
+
+.footer{
+    text-align:center;
+    color:#5f7b8f;
+    padding:30px 10px;
+    font-size:12px;
+}
+
+.small{
+    font-size:12px;
+    color:#718b9f;
+}
+
+.storage-overview{
+    margin-bottom:14px;
+    padding:16px 18px;
+}
+
+.storage-overview-row{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;
+    margin-top:12px;
+}
+
+.storage-overview-row > div{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    min-width:0;
+}
+
+.storage-overview-row span{
+    font-size:11px;
+    font-weight:600;
+    opacity:.65;
+    letter-spacing:.6px;
+}
+
+.storage-overview-row strong{
+    font-size:21px;
+    font-weight:700;
+    line-height:1.2;
+    white-space:nowrap;
+}
+
+@media(max-width:800px){
+    .storage-overview-row{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+}
+
+.loading{
+    opacity:.6;
+}
+
+@media(max-width:600px){
+    .container{
+        padding:12px;
+    }
+
+    .header{
+        padding:18px;
+    }
+
+    .title{
+        font-size:22px;
+    }
+}
+
+<style>
+#nasDashboard{
+    margin-bottom:28px;
+}
+
+.nas-dashboard{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+.dashboard-panel{
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:14px;
+    padding:18px;
+    background:rgba(255,255,255,.025);
+}
+
+.dashboard-panel-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.8px;
+}
+
+.overview-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:12px;
+}
+
+.overview-item{
+    padding:13px;
+    border-radius:10px;
+    background:rgba(255,255,255,.035);
+    min-width:0;
+}
+
+.overview-label,
+.dashboard-mini-grid span,
+.dashboard-memory-grid span{
+    display:block;
+    font-size:10px;
+    opacity:.55;
+    letter-spacing:.7px;
+    margin-bottom:6px;
+}
+
+.overview-label-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    min-width:0;
+}
+
+.overview-label-row .overview-label{
+    margin-bottom:0;
+    flex:1 1 auto;
+    min-width:0;
+}
+
+.ip-mode-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    flex:0 0 auto;
+    white-space:nowrap;
+    padding:4px 8px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:.5px;
+    line-height:1;
+}
+
+.ip-mode-dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    flex:0 0 6px;
+}
+
+.ip-mode-badge.dhcp{
+    color:#00ff88;
+    border-color:rgba(0,255,136,.35);
+    background:rgba(0,255,136,.08);
+}
+
+.ip-mode-badge.dhcp .ip-mode-dot{
+    background:#00ff88;
+    box-shadow:0 0 6px rgba(0,255,136,.65);
+}
+
+.ip-mode-badge.manual{
+    color:#76c7ff;
+    border-color:rgba(118,199,255,.35);
+    background:rgba(118,199,255,.08);
+}
+
+.ip-mode-badge.manual .ip-mode-dot{
+    background:#76c7ff;
+    box-shadow:0 0 6px rgba(118,199,255,.65);
+}
+
+
+.overview-item strong{
+    display:block;
+    font-size:14px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.dashboard-main-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+}
+
+.dashboard-card{
+    min-height:190px;
+}
+
+.dashboard-card .card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+}
+
+.dashboard-big-value{
+    font-size:34px;
+    font-weight:800;
+    margin-top:18px;
+    letter-spacing:.5px;
+}
+
+.dashboard-cpu-main{
+    position:relative;
+    min-height:48px;
+}
+
+.dashboard-cpu-value-row{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-top:18px;
+}
+
+.dashboard-cpu-value-row .dashboard-big-value{
+    margin-top:0;
+}
+
+.dashboard-cpu-inline-percent{
+    font-size:13px;
+    font-weight:800;
+    white-space:nowrap;
+    opacity:.9;
+}
+
+.process-manager-button{
+    position:absolute;
+    right:0;
+    top:0;
+}
+
+.dashboard-cpu-progress{
+    margin-top:18px;
+}
+
+.dashboard-cpu-load-grid{
+    margin-top:10px;
+}
+
+.dashboard-subtitle{
+    margin-top:5px;
+    font-size:11px;
+    opacity:.6;
+}
+
+.dashboard-subtitle strong{
+    margin-left:5px;
+    opacity:1;
+}
+
+.dashboard-mini-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-top:20px;
+}
+
+.dashboard-card .dashboard-network-speed-row + .dashboard-subtitle + .dashboard-mini-grid{
+    margin-top:25px;
+}
+
+
+.dashboard-mini-grid > div,
+.dashboard-memory-grid > div{
+    padding:9px;
+    border-radius:8px;
+    background:rgba(255,255,255,.035);
+}
+
+.dashboard-mini-grid strong,
+.dashboard-memory-grid strong{
+    font-size:13px;
+}
+
+.dashboard-progress{
+    height:7px;
+    border-radius:10px;
+    overflow:hidden;
+    background:rgba(255,255,255,.08);
+    margin-top:18px;
+}
+
+.dashboard-progress > div{
+    height:100%;
+    width:0%;
+    border-radius:10px;
+    transition:width .4s ease;
+    background:linear-gradient(90deg,#00ff88,#ffd700,#ff4444);
+    box-shadow:0 0 8px rgba(0,255,136,.35);
+}
+
+.dashboard-memory-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-top:10px;
+}
+
+
+
+
+
+@media(max-width:1100px){
+    .overview-grid{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+    .dashboard-main-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+
+/* ===== USB DISK / PARTITION DETAILS ===== */
+
+.usb-disk-sections{
+    margin-top:16px;
+    padding-top:15px;
+    border-top:1px solid rgba(255,255,255,.07);
+}
+
+.usb-disk-section-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+}
+
+.usb-disk-section-title span{
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.9px;
+    opacity:.55;
+}
+
+.usb-disk-card{
+    margin-bottom:10px;
+    padding:12px;
+    border:1px solid rgba(255,255,255,.055);
+    border-radius:9px;
+    background:rgba(255,255,255,.025);
+}
+
+.usb-disk-card:last-child{
+    margin-bottom:0;
+}
+
+.usb-disk-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+}
+
+.usb-disk-head-main{
+    min-width:0;
+}
+
+.usb-disk-name{
+    font-size:13px;
+    font-weight:750;
+}
+
+.usb-disk-device{
+    margin-top:3px;
+    font-size:10px;
+    opacity:.48;
+    word-break:break-all;
+}
+
+.usb-disk-size{
+    flex:0 0 auto;
+    font-size:11px;
+    font-weight:700;
+    opacity:.72;
+}
+
+.usb-partitions{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.usb-partition-check{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:6px;
+    min-width:max-content;
+}
+
+.usb-partition-check .usb-disk-check-btn{
+    white-space:nowrap;
+}
+
+
+.usb-partition{
+    display:grid;
+    grid-template-columns:
+        minmax(58px,.55fr)
+        minmax(70px,.65fr)
+        minmax(65px,.7fr)
+        minmax(0,1.7fr)
+        auto;
+    align-items:center;
+    gap:8px;
+    min-width:0;
+    padding:8px 9px;
+    border:1px solid rgba(255,255,255,.045);
+    border-radius:7px;
+    background:rgba(255,255,255,.018);
+}
+
+.usb-partition:hover{
+    background:rgba(255,255,255,.035);
+    border-color:rgba(255,255,255,.085);
+}
+
+.usb-partition-name{
+    font-size:11px;
+    font-weight:700;
+}
+
+.usb-partition-size,
+.usb-partition-fs{
+    font-size:10px;
+    opacity:.72;
+}
+
+.usb-partition-fs{
+    font-weight:700;
+    opacity:.82;
+}
+
+.usb-partition-mount{
+    min-width:0;
+    font-size:9px;
+    opacity:.48;
+    word-break:break-all;
+}
+
+.usb-disk-check-area{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid rgba(255,255,255,.045);
+}
+
+.usb-disk-check-info{
+    min-width:0;
+}
+
+.usb-disk-check-info strong{
+    display:block;
+    font-size:10px;
+    font-weight:700;
+}
+
+.usb-disk-check-info span{
+    display:block;
+    margin-top:3px;
+    font-size:9px;
+    opacity:.42;
+}
+
+.usb-disk-check-btn{
+    flex:0 0 auto;
+    min-height:32px;
+    padding:7px 11px;
+    border:1px solid rgba(0,255,136,.22);
+    border-radius:7px;
+    background:rgba(0,255,136,.055);
+    color:#00ff88;
+    font-size:10px;
+    font-weight:750;
+    cursor:pointer;
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        transform .15s ease;
+}
+
+.usb-disk-check-btn:hover{
+    background:rgba(0,255,136,.10);
+    border-color:rgba(0,255,136,.38);
+}
+
+.usb-disk-check-btn:active{
+    transform:scale(.97);
+}
+
+.usb-disk-check-btn:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.smart-details-btn{
+    flex:0 0 auto;
+    min-height:32px;
+    padding:7px 11px;
+    border:1px solid rgba(0,255,136,.22);
+    border-radius:7px;
+    background:rgba(0,255,136,.055);
+    color:#00ff88;
+    font-size:10px;
+    font-weight:750;
+    cursor:pointer;
+    transition:background .2s ease,border-color .2s ease,transform .15s ease;
+}
+.smart-details-btn:hover{
+    background:rgba(0,255,136,.10);
+    border-color:rgba(0,255,136,.38);
+}
+.smart-details-btn:active{
+    transform:scale(.97);
+}
+
+
+/* ============================================================
+   FILESYSTEM CHECK RESULT
+   ============================================================ */
+
+.filesystem-check-result{
+    grid-column:1 / -1;
+    margin-top:8px;
+    padding:10px;
+    border:1px solid rgba(0,255,136,.12);
+    border-radius:8px;
+    background:rgba(0,0,0,.16);
+}
+
+.filesystem-check-result-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+}
+
+.filesystem-check-progress-wrap{
+    width:100%;
+    height:7px;
+    overflow:hidden;
+    border-radius:99px;
+    background:rgba(255,255,255,.055);
+}
+
+.filesystem-check-progress{
+    width:0%;
+    height:100%;
+    border-radius:99px;
+    background:linear-gradient(
+        90deg,
+        #00ff88,
+        #00d9ff,
+        #00ff88
+    );
+    background-size:200% 100%;
+    transition:width .5s ease;
+    animation:filesystemCheckGlow 1.5s linear infinite;
+}
+
+.filesystem-check-status{
+    margin-top:8px;
+    font-size:9px;
+    opacity:.65;
+}
+
+.filesystem-check-output{
+    display:none;
+    margin-top:9px;
+    max-height:180px;
+    overflow:auto;
+    padding:8px;
+    border-radius:6px;
+    background:rgba(0,0,0,.22);
+    font-family:monospace;
+    font-size:8px;
+    line-height:1.5;
+    white-space:pre-wrap;
+    word-break:break-word;
+    opacity:.72;
+}
+
+.filesystem-check-actions{
+    display:none;
+    margin-top:9px;
+    align-items:center;
+    gap:7px;
+}
+
+@keyframes filesystemCheckGlow{
+    0%{
+        background-position:0% 50%;
+    }
+    100%{
+        background-position:200% 50%;
+    }
+}
+
+.smart-disk-scan-area{
+    margin-top:18px;
+    padding:18px;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    background:rgba(255,255,255,.025);
+}
+
+.smart-disk-scan-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.smart-disk-scan-title{
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:.4px;
+}
+
+.smart-disk-scan-subtitle{
+    margin-top:4px;
+    font-size:12px;
+    opacity:.65;
+}
+
+.smart-disk-scan-modes{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.smart-disk-scan-btn{
+    min-width:150px;
+    padding:11px 16px;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:10px;
+    background:rgba(255,255,255,.05);
+    color:inherit;
+    cursor:pointer;
+    font-weight:700;
+    transition:.2s;
+}
+
+.smart-disk-scan-btn:hover{
+    transform:translateY(-1px);
+    background:rgba(255,255,255,.09);
+}
+
+.smart-disk-scan-btn:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.smart-disk-scan-status{
+    display:none;
+    margin-top:15px;
+}
+
+.smart-disk-scan-status.visible{
+    display:block;
+}
+
+.smart-disk-scan-status-line{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:9px;
+    font-size:13px;
+}
+
+.smart-disk-scan-progress{
+    height:10px;
+    overflow:hidden;
+    border-radius:99px;
+    background:rgba(255,255,255,.08);
+}
+
+.smart-disk-scan-progress > div{
+    width:0%;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#00e5ff,#00ff88);
+    transition:width .5s ease;
+}
+
+.smart-disk-scan-result{
+    margin-top:12px;
+    padding:11px 13px;
+    border-radius:10px;
+    background:rgba(255,255,255,.04);
+    font-size:13px;
+    line-height:1.6;
+}
+
+.smart-disk-scan-cancel{
+    display:none;
+    margin-top:10px;
+}
+
+.smart-disk-scan-cancel.visible{
+    display:inline-block;
+}
+
+.usb-disk-check-result{
+    display:none;
+    margin-top:9px;
+    padding:9px 10px;
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:7px;
+    background:rgba(0,0,0,.14);
+    font-size:9px;
+    line-height:1.55;
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+
+.usb-disk-check-result.visible{
+    display:block;
+}
+
+.usb-disk-check-result.good{
+    border-color:rgba(0,255,136,.18);
+    color:#00ff88;
+}
+
+.usb-disk-check-result.warning{
+    border-color:rgba(255,215,0,.18);
+    color:#ffd700;
+}
+
+.usb-disk-check-result.bad{
+    border-color:rgba(255,68,68,.18);
+    color:#ff4444;
+}
+
+.usb-disk-empty{
+    padding:12px;
+    border:1px dashed rgba(255,255,255,.08);
+    border-radius:8px;
+    text-align:center;
+    font-size:10px;
+    opacity:.45;
+}
+
+@media(max-width:700px){
+    .overview-grid,
+    .dashboard-main-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+.disk-detail-usage-bar{
+    width:100%;
+    height:5px;
+    margin-top:7px;
+    overflow:hidden;
+    border-radius:10px;
+    background:rgba(255,255,255,.07);
+}
+
+.disk-detail-usage-bar > div{
+    height:100%;
+    width:0%;
+    border-radius:10px;
+    background:linear-gradient(90deg,#00ff88,#ffd700,#ff4444);
+    transition:width .4s ease;
+}
+
+
+.disk-storage-warning{
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    margin-top:10px;
+    padding:9px 10px;
+    border:1px solid rgba(255,68,68,.22);
+    border-radius:7px;
+    background:rgba(255,68,68,.055);
+}
+
+.disk-storage-warning > span{
+    flex:0 0 auto;
+    font-size:13px;
+    line-height:1.2;
+}
+
+.disk-storage-warning strong{
+    display:block;
+    font-size:9px;
+    font-weight:750;
+    letter-spacing:.7px;
+}
+
+.disk-storage-warning small{
+    display:block;
+    margin-top:3px;
+    font-size:9px;
+    line-height:1.35;
+    opacity:.65;
+}
+
+.disk-storage-warning-warm{
+    border-color:rgba(255,153,0,.22);
+    background:rgba(255,153,0,.055);
+}
+
+.disk-storage-warning-warm > span,
+.disk-storage-warning-warm strong{
+    color:#ff9900;
+}
+
+.disk-storage-warning:not(.disk-storage-warning-warm) > span,
+.disk-storage-warning:not(.disk-storage-warning-warm) strong{
+    color:#ff4444;
+}
+
+
+/* =========================================================
+   SECURITY CENTER SERVICE BUTTONS
+   ========================================================= */
+
+.server-start,
+.server-stop{
+    min-width:88px;
+    height:32px;
+    padding:0 14px;
+    border-radius:7px;
+    border:1px solid transparent;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.7px;
+    cursor:pointer;
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .12s ease;
+}
+
+.server-start{
+    color:#00ff88;
+    background:rgba(255,68,68,.09);
+    border-color:rgba(255,68,68,.25);
+    box-shadow:0 0 0 rgba(255,68,68,0);
+}
+
+.server-start:hover{
+    background:rgba(255,68,68,.16);
+    border-color:rgba(255,68,68,.45);
+    box-shadow:0 0 12px rgba(255,68,68,.12);
+}
+
+.server-stop{
+    color:#ff4444;
+    background:rgba(0,255,136,.09);
+    border-color:rgba(0,255,136,.25);
+    box-shadow:0 0 0 rgba(0,255,136,0);
+}
+
+.server-stop:hover{
+    background:rgba(0,255,136,.16);
+    border-color:rgba(0,255,136,.45);
+    box-shadow:0 0 12px rgba(0,255,136,.12);
+}
+
+.server-start:active,
+.server-stop:active{
+    transform:scale(.97);
+}
+
+.server-start:focus-visible,
+.server-stop:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 2px rgba(255,255,255,.08);
+}
+
+
+/* ===== SYSTEM LOGS ===== */
+
+/* ===== SYSTEM LOG TABS ===== */
+
+
+.process-manager-action{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+}
+
+.process-manager-kill{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    width:68px;
+    height:26px;
+    padding:0 8px;
+    border:1px solid rgba(255,68,68,.38);
+    border-radius:6px;
+    background:rgba(255,68,68,.08);
+    color:#ff6666;
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:.55px;
+    cursor:pointer;
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .12s ease;
+}
+
+.process-manager-kill-icon{
+    font-size:8px;
+    line-height:1;
+}
+
+.process-manager-kill:hover{
+    background:rgba(255,68,68,.18);
+    border-color:rgba(255,68,68,.65);
+    color:#ff7777;
+    box-shadow:0 0 12px rgba(255,68,68,.12);
+}
+
+.process-manager-kill:active{
+    transform:scale(.96);
+}
+
+.process-manager-kill:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 2px rgba(255,68,68,.16);
+}
+
+.process-manager-list{
+    max-height:330px;
+    overflow:auto;
+    margin-top:6px;
+    padding-right:3px;
+}
+
+.process-manager-table{
+    width:100%;
+    min-width:620px;
+}
+
+.process-manager-header,
+.process-manager-row{
+    display:grid;
+    grid-template-columns:
+        58px
+        minmax(0,1fr)
+        78px
+        78px
+        62px
+        70px
+        76px;
+    align-items:center;
+    column-gap:10px;
+    box-sizing:border-box;
+}
+
+.process-manager-header{
+    position:sticky;
+    top:0;
+    z-index:10;
+    min-height:32px;
+    padding:0 6px;
+    border-bottom:1px solid rgba(255,255,255,.09);
+    background:rgba(18,18,18,.97);
+    backdrop-filter:blur(8px);
+    color:rgba(255,255,255,.48);
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:.65px;
+}
+
+.process-manager-header > div{
+    min-width:0;
+    width:100%;
+    box-sizing:border-box;
+}
+
+.process-manager-header > div,
+.process-manager-header > button{
+    text-align:center;
+}
+
+.process-manager-sort{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    width:100%;
+    min-width:0;
+    height:100%;
+    padding:0;
+    margin:0;
+    border:0;
+    background:transparent;
+    color:rgba(255,255,255,.48);
+    font-family:inherit;
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:.65px;
+    cursor:pointer;
+    white-space:nowrap;
+    box-sizing:border-box;
+}
+
+.process-manager-sort span{
+    display:inline-block;
+    font-size:8px;
+    line-height:1;
+    color:rgba(255,255,255,.55);
+}
+
+.process-manager-sort:hover{
+    color:#ffffff;
+}
+
+.process-manager-sort:hover span{
+    color:#00ff88;
+}
+
+.process-manager-row{
+    min-height:36px;
+    padding:6px;
+    border-bottom:1px solid rgba(255,255,255,.055);
+    transition:background .15s ease;
+}
+
+.process-manager-row:hover{
+    background:rgba(255,255,255,.025);
+}
+
+.process-manager-row:last-child{
+    border-bottom:none;
+}
+
+.process-manager-pid{
+    font-family:monospace;
+    font-size:10px;
+    color:rgba(255,255,255,.55);
+    white-space:nowrap;
+}
+
+.process-manager-process{
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-family:monospace;
+    font-size:10px;
+    color:#ffffff;
+}
+
+.process-manager-cpu{
+    font-size:10px;
+    font-weight:800;
+    color:#00ff88;
+    text-align:right;
+    white-space:nowrap;
+}
+
+.process-manager-mem{
+    font-size:10px;
+    font-weight:800;
+    color:#00d9ff;
+    text-align:right;
+    white-space:nowrap;
+}
+
+.process-manager-state{
+    font-family:monospace;
+    font-size:9px;
+    color:rgba(255,255,255,.55);
+    text-align:center;
+    white-space:nowrap;
+}
+
+.process-manager-user{
+    font-size:9px;
+    color:rgba(255,255,255,.60);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.process-manager-list::-webkit-scrollbar{
+    width:5px;
+}
+
+.process-manager-list::-webkit-scrollbar-track{
+    background:rgba(255,255,255,.025);
+    border-radius:10px;
+}
+
+.process-manager-list::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,.16);
+    border-radius:10px;
+}
+
+@media(max-width:700px){
+
+    .process-manager-table{
+        min-width:560px;
+    }
+
+    .process-manager-header,
+    .process-manager-row{
+        grid-template-columns:
+            50px
+            minmax(210px,1fr)
+            55px
+            55px
+            55px
+            62px;
+        column-gap:7px;
+    }
+
+    .process-manager-header{
+        font-size:8px;
+    }
+
+    .process-manager-process{
+        font-size:9px;
+    }
+
+    .process-manager-cpu,
+    .process-manager-mem{
+        font-size:9px;
+    }
+}
+
+.system-log-tabs{
+    position:sticky;
+    top:0;
+    z-index:20;
+    display:flex;
+    align-items:stretch;
+    gap:4px;
+    margin-bottom:10px;
+    padding:4px;
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:8px;
+    background:rgba(18,18,18,.96);
+    backdrop-filter:blur(8px);
+}
+
+.system-log-tab{
+    flex:1;
+    min-width:0;
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    padding:0 10px;
+    border:1px solid transparent;
+    border-radius:6px;
+    background:transparent;
+    color:rgba(255,255,255,.55);
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.55px;
+    cursor:pointer;
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        color .18s ease;
+}
+
+.system-log-tab:hover{
+    background:rgba(255,255,255,.045);
+    color:#ffffff;
+}
+
+.system-log-tab.active{
+    color:#ffffff;
+    background:rgba(0,255,136,.07);
+    border-color:rgba(0,255,136,.20);
+    box-shadow:0 0 12px rgba(0,255,136,.05);
+}
+
+.system-log-tab-name{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.system-log-tab-count{
+    min-width:20px;
+    height:18px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 5px;
+    border-radius:5px;
+    font-size:9px;
+    font-weight:800;
+    color:#00ff88;
+    background:rgba(0,255,136,.08);
+    border:1px solid rgba(0,255,136,.18);
+}
+
+.system-log-tab-content{
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:8px;
+    overflow:hidden;
+    background:rgba(255,255,255,.018);
+}
+
+.system-logs-empty{
+    padding:24px 10px;
+    text-align:center;
+    font-size:11px;
+    opacity:.45;
+}
+
+.system-logs-list{
+    max-height:330px;
+    overflow:auto;
+    margin-top:6px;
+    padding-right:3px;
+}
+
+.system-log-table{
+    width:100%;
+}
+
+.system-log-row{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:8px 4px;
+    border-bottom:1px solid rgba(255,255,255,.065);
+}
+
+.system-log-row:last-child{
+    border-bottom:none;
+}
+
+.system-log-time{
+    flex:0 0 142px;
+    font-size:12px;
+    line-height:1.5;
+    opacity:.48;
+    white-space:nowrap;
+    font-family:monospace;
+}
+
+.system-log-content{
+    min-width:0;
+    flex:1;
+    line-height:1.5;
+}
+
+.system-log-source{
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.2px;
+    margin-right:5px;
+}
+
+.system-log-message{
+    font-size:10px;
+    opacity:.72;
+    overflow-wrap:anywhere;
+
+    font-size:10px;
+    
+    overflow-wrap:anywhere;
+
+    color:#ffffff !important;
+    opacity:1 !important;
+}
+
+.system-log-row.log-error .system-log-source{
+    color:#ff4444;
+}
+
+.system-log-row.log-warning .system-log-source{
+    color:#ff9900;
+}
+
+.system-log-row.log-notice .system-log-source{
+    color:#00d9ff;
+}
+
+.system-log-row.log-info .system-log-source{
+    color:#00ff88;
+}
+
+.system-logs-list::-webkit-scrollbar{
+    width:5px;
+}
+
+.system-logs-list::-webkit-scrollbar-track{
+    background:rgba(255,255,255,.025);
+    border-radius:10px;
+}
+
+.system-logs-list::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,.16);
+    border-radius:10px;
+}
+
+@media(max-width:700px){
+
+    .system-log-row{
+        gap:8px;
+    }
+
+    .system-log-time{
+        flex:0 0 112px;
+        font-size:8px;
+    }
+
+    .system-log-source{
+        font-size:9px;
+    }
+
+    .system-log-message{
+        font-size:8px;
+    }
+}
+
+
+/* =========================================================
+   NETWORK CENTER
+   ========================================================= */
+
+.network-mode-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:18px;
+    padding:12px 14px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:10px;
+}
+
+.network-mode-label{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.08em;
+    opacity:.8;
+}
+
+.network-mode-switch{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.network-mode-option{
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    font-weight:700;
+}
+
+.network-mode-option input{
+    margin:0;
+    cursor:pointer;
+}
+
+.network-mode-option input:checked + span{
+    font-weight:800;
+}
+
+.network-config-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:18px;
+    margin-top:18px;
+}
+
+.network-field{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.network-field label{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1px;
+    opacity:.75;
+}
+
+.network-field input{
+    width:100%;
+    box-sizing:border-box;
+    padding:12px 14px;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:8px;
+    background:rgba(0,0,0,.20);
+    color:inherit;
+    font-size:14px;
+    font-family:inherit;
+    outline:none;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+.network-field input:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+    background:rgba(255,255,255,.035);
+}
+
+.network-field input:disabled:focus{
+    border-color:rgba(255,255,255,.12);
+    box-shadow:none;
+}
+
+.network-field input:focus{
+    border-color:rgba(80,170,255,.75);
+    background:rgba(0,0,0,.28);
+    box-shadow:0 0 0 2px rgba(80,170,255,.12);
+}
+
+.network-apply-message{
+    display:none;
+    margin-top:14px;
+    padding:11px 14px;
+    border-radius:8px;
+    font-size:12px;
+    line-height:1.5;
+}
+
+.network-apply-message.success{
+    display:block;
+    border:1px solid rgba(0,220,140,.30);
+    background:rgba(0,220,140,.07);
+}
+
+.network-apply-message.error{
+    display:block;
+    border:1px solid rgba(255,80,80,.30);
+    background:rgba(255,80,80,.07);
+}
+
+@media(max-width:800px){
+
+    .network-config-grid{
+        grid-template-columns:1fr;
+    }
+
+
+}
+
+@media(max-width:480px){
+
+}
+
+
+/* ===================================================== */
+/* LAN CONFIGURATION MODAL */
+/* ===================================================== */
+
+.network-config-modal{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+}
+
+.network-config-modal.is-open{
+    display:flex;
+}
+
+.network-config-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.72);
+    backdrop-filter:blur(5px);
+}
+
+.network-config-dialog{
+    position:relative;
+    z-index:1;
+    width:min(720px, calc(100vw - 32px));
+    max-height:calc(100vh - 40px);
+    overflow:auto;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:14px;
+    background:rgba(20,24,30,.98);
+    box-shadow:0 20px 70px rgba(0,0,0,.55);
+}
+
+.network-config-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:18px 20px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.network-config-header h3{
+    margin:0;
+    font-size:15px;
+    font-weight:800;
+    letter-spacing:.06em;
+}
+
+.network-config-header small{
+    display:block;
+    margin-top:5px;
+    font-size:11px;
+    opacity:.6;
+}
+
+.network-config-close{
+    width:34px;
+    height:34px;
+    padding:0;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:8px;
+    background:rgba(255,255,255,.05);
+    color:inherit;
+    font-size:24px;
+    line-height:1;
+    cursor:pointer;
+}
+
+.network-config-close:hover{
+    background:rgba(255,255,255,.10);
+}
+
+.network-config-body{
+    padding:20px;
+}
+
+.network-config-body .network-mode-row{
+    margin-bottom:20px;
+}
+
+.network-config-body .network-config-grid{
+    margin-bottom:20px;
+}
+
+.network-config-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    padding:16px 20px;
+    border-top:1px solid rgba(255,255,255,.08);
+}
+
+.network-config-footer .btn{
+    min-width:110px;
+}
+
+#networkModalMessage{
+    margin:0 20px 18px;
+}
+
+body.network-config-modal-open{
+    overflow:hidden;
+}
+
+.network-config-footer #networkModalCancelBtn{
+    border-color:rgba(255,68,68,.30);
+    background:rgba(255,68,68,.10);
+    color:#ffffff !important;
+}
+.network-config-footer #networkModalCancelBtn:hover{
+    background:rgba(255,68,68,.18);
+    border-color:rgba(255,68,68,.50);
+    box-shadow:0 0 12px rgba(255,68,68,.12);
+}
+.network-config-footer #networkModalCancelBtn:active{
+    transform:scale(.97);
+}
+.network-config-footer #networkModalCancelBtn:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 2px rgba(255,255,255,.08);
+}
+
+@media (max-width:800px){
+
+    .network-config-dialog{
+        width:calc(100vw - 24px);
+        max-height:calc(100vh - 24px);
+    }
+
+    .network-config-body{
+        padding:16px;
+    }
+
+    .network-config-footer{
+        padding:14px 16px;
+    }
+
+}
+
+@media (max-width:480px){
+
+    .network-config-header{
+        padding:15px 16px;
+    }
+
+    .network-config-header h3{
+        font-size:13px;
+    }
+
+    .network-config-body{
+        padding:14px;
+    }
+
+    .network-config-footer{
+        flex-direction:column-reverse;
+    }
+
+    .network-config-footer .btn{
+        width:100%;
+    }
+
+}
+
+
+/* ===================================================== */
+/* NETWORK DASHBOARD IP EDIT */
+/* ===================================================== */
+
+.dashboard-network-speed-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.dashboard-network-speed-row .dashboard-big-value{
+    font-size:24px;
+    line-height:1.1;
+}
+
+.network-ip-edit-btn{
+    height:30px;
+    min-width:92px;
+    padding:0 14px;
+    border-radius:7px;
+    border:1px solid rgba(0,255,136,.30);
+    background:rgba(0,255,136,.10);
+    color:#ffffff !important;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.6px;
+    cursor:pointer;
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .12s ease;
+}
+
+.network-ip-edit-btn:hover{
+    background:rgba(0,255,136,.18);
+    border-color:rgba(0,255,136,.50);
+    box-shadow:0 0 12px rgba(0,255,136,.12);
+}
+
+.network-ip-edit-btn:active{
+    transform:scale(.97);
+}
+
+.network-ip-edit-btn:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 2px rgba(255,255,255,.08);
+}
+
+@media (max-width:480px){
+
+    .dashboard-network-speed-row .dashboard-big-value{
+        font-size:20px;
+    }
+
+    .network-ip-edit-btn{
+        min-width:74px;
+        padding:6px 9px;
+        font-size:9px;
+    }
+
+}
+
+</style>
+
+</style>
+
+<style>
+
+.disk-card-actions{
+    display:flex;
+    align-items:stretch;
+    justify-content:stretch;
+    gap:7px;
+    width:100%;
+    flex-wrap:nowrap;
+}
+
+.disk-card-actions .safe-eject-btn{
+    border-color:rgba(255,68,68,.35);
+    background:rgba(255,68,68,.08);
+    color:#ff4444;
+}
+
+.safe-eject-btn:hover{
+    background:rgba(255,68,68,.14);
+    border-color:rgba(255,68,68,.55);
+    color:#ff5555;
+}
+
+.disk-details-btn{
+    flex:1 1 0;
+    width:0;
+    min-width:0;
+    margin-top:12px;
+}
+
+.disk-details-btn{
+    width:100%;
+    margin-top:12px;
+    padding:9px 12px;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:7px;
+    background:rgba(255,255,255,.04);
+    color:inherit;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.8px;
+    cursor:pointer;
+    transition:all .2s ease;
+}
+
+.disk-details-btn:hover{
+    background:rgba(255,255,255,.09);
+    border-color:rgba(255,255,255,.22);
+}
+
+.disk-details-btn:active{
+    transform:scale(.98);
+}
+
+
+.disk-details-modal{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.disk-details-modal.visible{
+    display:flex;
+}
+
+.disk-details-backdrop{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.78);
+    backdrop-filter:blur(7px);
+}
+
+.disk-details-panel{
+    position:relative;
+    width:min(760px,calc(100vw - 30px));
+    max-height:calc(100vh - 40px);
+    overflow:auto;
+    padding:22px;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    background:linear-gradient(
+        145deg,
+        #131920 0%,
+        #0e1318 100%
+    );
+    box-shadow:
+        0 24px 80px rgba(0,0,0,.65),
+        0 0 0 1px rgba(255,255,255,.025);
+}
+
+.disk-details-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    padding-bottom:17px;
+    margin-bottom:16px;
+    border-bottom:1px solid rgba(255,255,255,.07);
+}
+
+.disk-details-title{
+    font-size:21px;
+    font-weight:750;
+    letter-spacing:.2px;
+}
+
+.disk-details-head .small{
+    margin-top:4px;
+    font-size:11px;
+    opacity:.55;
+    letter-spacing:.3px;
+}
+
+.disk-details-close{position:absolute;top:14px;right:14px;z-index:10;
+    flex:0 0 auto;
+    width:34px;
+    height:34px;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:8px;
+    background:rgba(255,255,255,.045);
+    color:inherit;
+    font-size:21px;
+    line-height:1;
+    cursor:pointer;
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        transform .15s ease;
+}
+
+.disk-details-close:hover{
+    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.20);
+}
+
+.disk-details-close:active{
+    transform:scale(.94);
+}
+
+.disk-health-summary{
+    margin-bottom:16px;
+    padding:14px 15px;
+    border:1px solid rgba(255,255,255,.075);
+    border-radius:9px;
+    background:rgba(255,255,255,.028);
+}
+
+.disk-health-summary-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    margin-bottom:9px;
+}
+
+.disk-health-summary-head span{
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.9px;
+    opacity:.55;
+}
+
+.disk-health-summary-head strong{
+    font-size:13px;
+    font-weight:750;
+}
+
+.disk-health-bar{
+    height:7px;
+    width:100%;
+    overflow:hidden;
+    border-radius:10px;
+    background:rgba(255,255,255,.07);
+}
+
+.disk-health-bar > div{
+    height:100%;
+    width:0%;
+    border-radius:10px;
+    transition:width .4s ease;
+}
+
+.disk-health-bar.good > div{
+    background:#00ff88;
+}
+
+.disk-health-bar.warning > div{
+    background:#ffd700;
+}
+
+.disk-health-bar.bad > div{
+    background:#ff4444;
+}
+
+.disk-health-bar.unknown > div{
+    background:rgba(255,255,255,.25);
+}
+
+.disk-details-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:9px;
+}
+
+.disk-details-grid > div{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-width:0;
+    min-height:58px;
+    padding:10px 12px;
+    border:1px solid rgba(255,255,255,.055);
+    border-radius:8px;
+    background:rgba(255,255,255,.025);
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+}
+
+.disk-details-grid > div:hover{
+    background:rgba(255,255,255,.045);
+    border-color:rgba(255,255,255,.10);
+}
+
+.disk-details-grid span{
+    margin-bottom:5px;
+    font-size:9px;
+    font-weight:650;
+    letter-spacing:.75px;
+    opacity:.48;
+}
+
+.disk-details-grid strong{
+    font-size:13px;
+    font-weight:700;
+    line-height:1.25;
+    word-break:break-word;
+}
+
+.disk-details-grid .detail-good{
+    color:#00ff88;
+}
+
+.disk-details-grid .detail-warning{
+    color:#ffd700;
+}
+
+.disk-details-grid .detail-bad{
+    color:#ff4444;
+}
+
+.disk-details-grid .detail-unknown{
+    opacity:.6;
+}
+
+.disk-details-grid .detail-label{
+    display:inline-block;
+    margin-left:5px;
+    font-size:8px;
+    font-weight:700;
+    letter-spacing:.5px;
+    opacity:.7;
+}
+
+.disk-smart-section{
+    margin-top:16px;
+    padding-top:15px;
+    border-top:1px solid rgba(255,255,255,.07);
+}
+
+.disk-smart-title{
+    margin-bottom:9px;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.9px;
+    opacity:.55;
+}
+
+.disk-smart-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:9px;
+}
+
+.disk-smart-item{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-height:58px;
+    padding:10px 12px;
+    border:1px solid rgba(255,255,255,.055);
+    border-radius:8px;
+    background:rgba(255,255,255,.025);
+}
+
+.disk-smart-item span{
+    margin-bottom:5px;
+    font-size:9px;
+    font-weight:650;
+    letter-spacing:.75px;
+    opacity:.48;
+}
+
+.disk-smart-item strong{
+    font-size:15px;
+    font-weight:750;
+}
+
+@media(max-width:700px){
+
+    .disk-details-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .disk-smart-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+}
+
+@media(max-width:500px){
+
+    .disk-details-modal{
+        padding:10px;
+    }
+
+    .disk-details-panel{
+        width:calc(100vw - 20px);
+        max-height:calc(100vh - 20px);
+        padding:15px;
+        border-radius:11px;
+    }
+
+    .disk-details-grid,
+    .disk-smart-grid{
+        grid-template-columns:1fr;
+    }
+
+    .disk-details-title{
+        font-size:18px;
+    }
+
+}
+
+
+.disk-card{
+    padding:16px;
+}
+
+.disk-storage-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin-top:14px;
+}
+
+.disk-storage-grid > div,
+.disk-info-row > div{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    min-width:0;
+}
+
+.disk-storage-grid span,
+.disk-info-row span,
+.disk-health-header span,
+.disk-usage-header span{
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:.7px;
+    opacity:.6;
+}
+
+.disk-storage-grid strong{
+    font-size:15px;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+.disk-info-row{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1px solid rgba(255,255,255,.08);
+}
+
+
+.disk-info-row strong small{
+    display:block;
+    margin-top:2px;
+    font-size:9px;
+    font-weight:600;
+    letter-spacing:.5px;
+    opacity:.7;
+}
+
+
+.disk-info-row .smart-passed{
+    color:#00ff88;
+}
+
+.disk-info-row .smart-na{
+    opacity:.65;
+}
+
+.disk-info-row .smart-warning{
+    color:#ff4444;
+}
+
+.disk-info-row .smart-unknown{
+    opacity:.65;
+}
+
+.disk-info-row .temp-normal{
+    color:#00ff88;
+}
+
+.disk-info-row .temp-warm{
+    color:#ffd700;
+}
+
+.disk-info-row .temp-high{
+    color:#ff4444;
+}
+
+.disk-info-row .temp-unknown{
+    opacity:.7;
+}
+
+.disk-info-row strong{
+    font-size:13px;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+.disk-health-header,
+.disk-usage-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-top:15px;
+    margin-bottom:6px;
+}
+
+
+.disk-health-header strong small{
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.5px;
+}
+
+.health-label-excellent{
+    color:#00ff88;
+}
+
+.health-label-good{
+    color:#00ff88;
+}
+
+.health-label-warning{
+    color:#ffd700;
+}
+
+.health-label-critical{
+    color:#ff4444;
+}
+
+.health-label-unknown{
+    opacity:.6;
+}
+
+
+.disk-usage-header strong small{
+    display:inline-block;
+    margin-left:5px;
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:.5px;
+}
+
+.disk-health-header strong,
+.disk-usage-header strong{
+    font-size:12px;
+    font-weight:700;
+    text-align:right;
+}
+
+.disk-card .progress{
+    height:7px;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.disk-card .progress-bar{
+    height:100%;
+    border-radius:10px;
+    transition:width .4s ease;
+}
+
+@media(max-width:800px){
+
+    .disk-storage-grid,
+    .disk-info-row{
+        grid-template-columns:1fr 1fr;
+    }
+
+}
+
+@media(max-width:500px){
+
+    .disk-storage-grid,
+    .disk-info-row{
+        grid-template-columns:1fr;
+    }
+
+}
+</style>
+
+
+<style>
+.process-manager-button{
+    height:30px;
+    min-width:92px;
+    padding:0 14px;
+    border-radius:7px;
+    border:1px solid rgba(0,255,136,.30);
+    background:rgba(0,255,136,.10);
+    color:#ffffff !important;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.6px;
+    cursor:pointer;
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .12s ease;
+}
+
+.process-manager-button:hover{
+    background:rgba(0,255,136,.18);
+    border-color:rgba(0,255,136,.50);
+    box-shadow:0 0 12px rgba(0,255,136,.12);
+}
+
+.process-manager-button:active{
+    transform:scale(.97);
+}
+
+.process-manager-button:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 2px rgba(255,255,255,.08);
+}
+</style>
+
+
+<style>
+.process-manager-button.process-low{
+    background:rgba(0,255,136,.10);
+    border-color:rgba(0,255,136,.30);
+}
+
+.process-manager-button.process-low:hover{
+    background:rgba(0,255,136,.18);
+    border-color:rgba(0,255,136,.50);
+    box-shadow:0 0 12px rgba(0,255,136,.12);
+}
+
+.process-manager-button.process-normal{
+    background:rgba(0,255,136,.08);
+    border-color:rgba(0,255,136,.25);
+}
+
+.process-manager-button.process-normal:hover{
+    background:rgba(0,255,136,.15);
+    border-color:rgba(0,255,136,.45);
+    box-shadow:0 0 12px rgba(0,255,136,.10);
+}
+
+.process-manager-button.process-high{
+    background:rgba(255,215,0,.10);
+    border-color:rgba(255,215,0,.30);
+}
+
+.process-manager-button.process-high:hover{
+    background:rgba(255,215,0,.18);
+    border-color:rgba(255,215,0,.50);
+    box-shadow:0 0 12px rgba(255,215,0,.12);
+}
+
+.process-manager-button.process-critical{
+    background:rgba(255,68,68,.10);
+    border-color:rgba(255,68,68,.30);
+}
+
+.process-manager-button.process-critical:hover{
+    background:rgba(255,68,68,.18);
+    border-color:rgba(255,68,68,.50);
+    box-shadow:0 0 12px rgba(255,68,68,.12);
+}
+</style>
+
+</head>
+
+<body>
+
+<header class="header">
+    <div>
+        <div class="title">NAS220 MANAGER</div>
+        <div class="subtitle">
+            Storage • Health • Temperature • Servers
+        </div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center;">
+        <button class="refresh" onclick="window.location.href='http://192.168.5.150/cgi-bin/luci/'" style="text-decoration:none;">⚙ LuCI</button>
+        <button
+            class="refresh"
+            onclick="showSystemLogs()">
+            📋 LOGS
+        </button>
+        <button class="refresh" onclick="rebootNAS()">🔄 Reboot</button>
+        <button class="refresh" onclick="shutdownNAS()">⏻ Shutdown</button>
+    </div>
+</header>
+
+<main class="container">
+
+    
+
+<div class="section-title">NAS DASHBOARD</div>
+
+<div id="nasDashboard" class="nas-dashboard">
+
+    <!-- SYSTEM OVERVIEW -->
+    <div class="dashboard-panel dashboard-overview">
+
+        <div class="dashboard-panel-title">
+            <span>SYSTEM OVERVIEW</span>
+            <span id="systemStatus" class="badge">—</span>
+        </div>
+
+        <div class="overview-grid">
+
+            <div class="overview-item">
+                <span class="overview-label">HOSTNAME</span>
+                <strong id="dashHostname">—</strong>
+            </div>
+
+            <div class="overview-item">
+                <span class="overview-label">MODEL</span>
+                <strong id="dashModel">—</strong>
+            </div>
+
+            <div class="overview-item">
+                <span class="overview-label">KERNEL</span>
+                <strong id="dashKernel">—</strong>
+            </div>
+
+            <div class="overview-item">
+                <div class="overview-label-row">
+                    <span class="overview-label">IP ADDRESS</span>
+                    <span id="dashIPMode" class="ip-mode-badge">
+                        <span class="ip-mode-dot"></span>
+                        <span id="dashIPModeText">—</span>
+                    </span>
+                </div>
+                <strong id="dashIP">—</strong>
+            </div>
+
+            <div class="overview-item">
+                <span class="overview-label">MAC ADDRESS</span>
+                <strong id="dashMAC">—</strong>
+            </div>
+
+            <div class="overview-item">
+                <span class="overview-label">UPTIME</span>
+                <strong id="dashUptime">—</strong>
+            </div>
+
+            <div class="overview-item">
+                <span class="overview-label">NAS STATUS</span>
+                <strong id="dashStatusValue">ONLINE</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MAIN STATUS CARDS -->
+    <div class="dashboard-main-grid">
+
+        <!-- CPU -->
+        <div class="card dashboard-card dashboard-metric">
+
+            <div class="card-head">
+                <span>CPU LOAD</span>
+                <span id="dashCpu" class="badge">—</span>
+            </div>
+
+            <div class="dashboard-cpu-main">
+
+                <div class="dashboard-cpu-value-row">
+                    <div id="dashCpuValue" class="dashboard-big-value">—</div>
+                    <strong id="dashCpuPressurePercent" class="dashboard-cpu-inline-percent">0%</strong>
+                </div>
+
+                <button
+                    type="button"
+                    id="processManagerButton"
+                    class="process-manager-button"
+                    onclick="showProcessManager()">
+                    PROCESSES
+                </button>
+
+            </div>
+
+            <div class="dashboard-progress dashboard-cpu-progress">
+                <div id="dashCpuPressureBar"></div>
+            </div>
+
+            <div class="dashboard-memory-grid dashboard-cpu-load-grid">
+                <div>
+                    <span>1 MIN</span>
+                    <strong id="dashLoad1">—</strong>
+                </div>
+                <div>
+                    <span>5 MIN</span>
+                    <strong id="dashLoad5">—</strong>
+                </div>
+                <div>
+                    <span>15 MIN</span>
+                    <strong id="dashLoad15">—</strong>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- RAM -->
+        <div class="card dashboard-card dashboard-metric">
+
+            <div class="card-head">
+                <span>MEMORY</span>
+                <span id="dashRam" class="badge">—</span>
+            </div>
+
+            <div id="dashRamValue" class="dashboard-big-value">—</div>
+
+            <div class="dashboard-progress">
+                <div id="dashRamBar"></div>
+            </div>
+
+            <div class="dashboard-memory-grid">
+                <div>
+                    <span>USED</span>
+                    <strong id="dashRamUsed">—</strong>
+                </div>
+                <div>
+                    <span>FREE</span>
+                    <strong id="dashRamFree">—</strong>
+                </div>
+                <div>
+                    <span>TOTAL</span>
+                    <strong id="dashRamTotal">—</strong>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- STORAGE -->
+        <div class="card dashboard-card dashboard-metric">
+
+            <div class="card-head">
+                <span>STORAGE</span>
+                <span id="dashStorage" class="badge">—</span>
+            </div>
+
+            <div id="dashStorageValue" class="dashboard-big-value">—</div>
+
+            <div class="dashboard-progress">
+                <div id="dashStorageBar"></div>
+            </div>
+
+            <div class="dashboard-memory-grid">
+                <div>
+                    <span>USED</span>
+                    <strong id="dashStorageUsed">—</strong>
+                </div>
+                <div>
+                    <span>FREE</span>
+                    <strong id="dashStorageFree">—</strong>
+                </div>
+                <div>
+                    <span>TOTAL</span>
+                    <strong id="dashStorageTotal">—</strong>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- NETWORK -->
+        <div class="card dashboard-card dashboard-metric">
+
+            <div class="card-head">
+                <span>NETWORK</span>
+                <span id="dashNetwork" class="badge">—</span>
+            </div>
+
+            <div class="dashboard-network-speed-row">
+
+                <div id="dashNetworkValue" class="dashboard-big-value">—</div>
+
+                <button
+                    type="button"
+                    class="btn network-ip-edit-btn"
+                    onclick="openNetworkConfiguration()">
+                    IP EDIT
+                </button>
+
+            </div>
+
+            <div class="dashboard-subtitle">
+                Network Interface
+                <strong id="dashInterface">—</strong>
+            </div>
+
+            <div class="dashboard-mini-grid">
+
+                <div>
+                    <span>RX</span>
+                    <strong id="dashRX">—</strong>
+                </div>
+
+                <div>
+                    <span>TX</span>
+                    <strong id="dashTX">—</strong>
+                </div>
+
+                <div>
+                    <span>ERRORS</span>
+                    <strong id="dashNetworkErrors">—</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+<div class="section-title">STORAGE & DISKS</div>
+
+<div id="storageOverview" class="card storage-overview">
+    <div class="card-title">STORAGE OVERVIEW</div>
+
+    <div class="storage-overview-row">
+        <div>
+            <span>TOTAL CAPACITY</span>
+            <strong id="storageTotal">—</strong>
+        </div>
+
+        <div>
+            <span>USED</span>
+            <strong id="storageUsed">—</strong>
+        </div>
+
+        <div>
+            <span>AVAILABLE</span>
+            <strong id="storageAvailable">—</strong>
+        </div>
+
+        <div>
+            <span>USAGE</span>
+            <strong id="storageUsage">—</strong>
+        </div>
+    </div>
+</div>
+
+<div id="diskGrid" class="grid">
+        <div class="card loading">Loading disk information...</div>
+    </div>
+<div class="section-title">SECURITY CENTER</div>
+
+<div id="securityCenter" class="grid">
+    <div class="card loading">
+        Loading security information...
+    </div>
+</div>
+
+<div id="portGrid" class="grid listening-ports-grid">
+    <div class="card loading">Scanning ports...</div>
+</div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- LAN CONFIGURATION MODAL -->
+<!-- ===================================================== -->
+
+<div id="networkConfigModal" class="network-config-modal" aria-hidden="true">
+
+    <div class="network-config-overlay" onclick="closeNetworkConfiguration()"></div>
+
+    <div class="network-config-dialog">
+
+        <div class="network-config-header">
+
+            <div>
+                <h3>LAN INTERFACE CONFIGURATION</h3>
+                <small>Network interface configuration</small>
+            </div>
+
+            <button
+                type="button"
+                class="network-config-close"
+                onclick="closeNetworkConfiguration()"
+                aria-label="Close">
+                ×
+            </button>
+
+        </div>
+
+        <div class="network-config-body">
+
+            <div class="network-mode-row">
+                <span class="network-mode-label">NETWORK MODE</span>
+
+                <div class="network-mode-switch">
+
+                    <label class="network-mode-option">
+                        <input
+                            type="radio"
+                            name="networkModalMode"
+                            value="static">
+                        <span>MANUAL</span>
+                    </label>
+
+                    <label class="network-mode-option">
+                        <input
+                            type="radio"
+                            name="networkModalMode"
+                            value="dhcp">
+                        <span>DHCP</span>
+                    </label>
+
+                </div>
+            </div>
+
+            <div class="network-config-grid">
+
+                <div class="network-field">
+                    <label for="networkModalIP">IP ADDRESS</label>
+                    <input
+                        id="networkModalIP"
+                        type="text"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        placeholder="192.168.5.150">
+                </div>
+
+                <div class="network-field">
+                    <label for="networkModalNetmask">NETMASK</label>
+                    <input
+                        id="networkModalNetmask"
+                        type="text"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        placeholder="255.255.255.0">
+                </div>
+
+                <div class="network-field">
+                    <label for="networkModalGateway">GATEWAY</label>
+                    <input
+                        id="networkModalGateway"
+                        type="text"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        placeholder="192.168.5.1">
+                </div>
+
+                <div class="network-field">
+                    <label for="networkModalDNS">DNS</label>
+                    <input
+                        id="networkModalDNS"
+                        type="text"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        placeholder="192.168.5.1">
+                </div>
+
+            </div>
+
+
+
+        </div>
+
+        <div class="network-config-footer">
+
+            <button
+                type="button"
+                class="btn network-ip-edit-btn"
+                id="networkModalCancelBtn"
+                onclick="closeNetworkConfiguration()">
+                CANCEL
+            </button>
+
+            <button
+                type="button"
+                class="btn network-ip-edit-btn"
+                id="networkModalApplyBtn"
+                onclick="testNetworkApplyButton()">
+                APPLY
+            </button>
+
+        </div>
+
+        <div
+            id="networkModalMessage"
+            class="network-apply-message">
+        </div>
+
+    </div>
+
+</div>
+
+</main>
+
+<footer class="footer">
+    NAS220 Manager • OpenWrt • Live System Monitor
+    <br>
+    Last update: <span id="lastUpdate">—</span>
+</footer>
+
+<script>
+
+const API = "/cgi-bin/nas-status";
+
+
+
+
+
+
+function esc(value){
+    return String(value ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;");
+}
+
+function formatBytesKB(kb){
+    kb = Number(kb || 0);
+
+    if(kb < 1024)
+        return kb.toFixed(2) + " KB";
+
+    if(kb < 1024*1024)
+        return (kb/1024).toFixed(2) + " MB";
+
+    if(kb < 1024*1024*1024)
+        return (kb/(1024*1024)).toFixed(2) + " GB";
+
+    return (kb/(1024*1024*1024)).toFixed(2) + " TB";
+}
+
+function formatUptime(sec){
+    sec = Number(sec || 0);
+
+    const d = Math.floor(sec/86400);
+    sec %= 86400;
+
+    const h = Math.floor(sec/3600);
+    sec %= 3600;
+
+    const m = Math.floor(sec/60);
+
+    return `${d}d ${h}h ${m}m`;
+}
+
+function badgeClass(status){
+    status = String(status || "").toUpperCase();
+
+    if(status === "RUNNING" ||
+       status === "PASSED" ||
+       status === "ACTIVE" ||
+       status === "ONLINE")
+        return "badge good";
+
+    if(status === "STOPPED" ||
+       status === "STANDBY" ||
+       status === "UNKNOWN" ||
+       status === "NOT AVAILABLE")
+        return "badge warn";
+
+    if(status === "FAILED" ||
+       status === "FAILING")
+        return "badge bad";
+
+    return "badge neutral";
+}
+
+function renderStorageOverview(disks){
+
+    const totalEl = document.getElementById("storageTotal");
+    const usedEl = document.getElementById("storageUsed");
+    const availableEl = document.getElementById("storageAvailable");
+    const usageEl = document.getElementById("storageUsage");
+
+    if(!disks || !disks.length)
+        return;
+
+    let totalKB = 0;
+    let usedKB = 0;
+    let availableKB = 0;
+
+    disks.forEach(d => {
+        totalKB += Number(d.size_kb || 0);
+        usedKB += Number(d.used_kb || 0);
+        availableKB += Number(d.avail_kb || 0);
+    });
+
+    const usage =
+        totalKB > 0
+            ? (usedKB / totalKB) * 100
+            : 0;
+
+    if(totalEl)
+        totalEl.textContent = formatBytesKB(totalKB);
+
+    if(usedEl)
+        usedEl.textContent = formatBytesKB(usedKB);
+
+    if(availableEl)
+        availableEl.textContent = formatBytesKB(availableKB);
+
+    if(usageEl)
+        usageEl.textContent = usage.toFixed(1) + "%";
+}
+
+function renderDisks(disks){
+
+    const grid = document.getElementById("diskGrid");
+
+    if(!disks || !disks.length){
+        grid.innerHTML =
+            '<div class="card">No disks detected.</div>';
+        return;
+    }
+
+    grid.innerHTML = disks.map(d => {
+
+        const sizeKB = Number(d.size_kb || 0);
+        const usedKB = Number(d.used_kb || 0);
+        const availKB = Number(d.avail_kb || 0);
+
+        let use =
+            sizeKB > 0
+                ? (usedKB / sizeKB) * 100
+                : Number(d.use || 0);
+
+        use = Math.max(0, Math.min(100, use));
+
+        const useText =
+            use < 1
+                ? use.toFixed(2)
+                : use.toFixed(1);
+
+        let warningHTML = "";
+
+        if(use >= 90){
+
+            warningHTML = `
+                <div class="disk-storage-warning">
+                    <span>⚠</span>
+                    <div>
+                        <strong>STORAGE CRITICAL</strong>
+                        <small>Storage usage is critically high.</small>
+                    </div>
+                </div>
+            `;
+
+        }else if(use >= 80){
+
+            warningHTML = `
+                <div class="disk-storage-warning disk-storage-warning-warm">
+                    <span>⚠</span>
+                    <div>
+                        <strong>STORAGE WARNING</strong>
+                        <small>Storage usage is getting high.</small>
+                    </div>
+                </div>
+            `;
+        }
+
+        const rawHealth = d.health;
+
+        const healthKnown =
+            rawHealth !== undefined &&
+            rawHealth !== null &&
+            rawHealth !== "" &&
+            String(rawHealth).toUpperCase() !== "UNKNOWN";
+
+        const numericHealth =
+            healthKnown ? Number(rawHealth) : NaN;
+
+        const health =
+            Number.isFinite(numericHealth)
+                ? Math.max(0, Math.min(100, numericHealth))
+                : null;
+
+        const healthStatus =
+            health !== null
+                ? String(d.health_status || "")
+                : "UNKNOWN";
+
+        let healthClass = "health-unknown";
+
+        if(health !== null){
+
+            if(health >= 90){
+                healthClass = "health-excellent";
+
+            }else if(health >= 75){
+                healthClass = "health-good";
+
+            }else if(health >= 50){
+                healthClass = "health-warning";
+
+            }else{
+                healthClass = "health-critical";
+            }
+        }
+
+        const smart =
+            d.smart !== undefined
+                ? String(d.smart)
+                : "N/A";
+
+        let smartStatus = "UNKNOWN";
+        let smartClass = "smart-unknown";
+
+        const smartUpper = smart.toUpperCase();
+
+        if(smartUpper === "PASSED"){
+            smartStatus = "HEALTHY";
+            smartClass = "smart-passed";
+
+        }else if(
+            smartUpper === "NOT AVAILABLE" ||
+            smartUpper === "N/A"
+        ){
+            smartStatus = "N/A";
+            smartClass = "smart-na";
+
+        }else{
+            smartStatus = "WARNING";
+            smartClass = "smart-warning";
+        }
+
+        const temperature =
+            d.temperature !== undefined
+                ? String(d.temperature)
+                : "N/A";
+
+        const temperatureNumber = Number(temperature);
+
+        let temperatureStatus = "N/A";
+        let temperatureClass = "temp-unknown";
+
+        if(Number.isFinite(temperatureNumber)){
+
+            if(temperatureNumber < 45){
+                temperatureStatus = "NORMAL";
+                temperatureClass = "temp-normal";
+
+            }else if(temperatureNumber <= 50){
+                temperatureStatus = "WARM";
+                temperatureClass = "temp-warm";
+
+            }else{
+                temperatureStatus = "HIGH";
+                temperatureClass = "temp-high";
+            }
+        }
+
+        const powerHours =
+            d.power_hours !== undefined
+                ? String(d.power_hours)
+                : "N/A";
+
+        let healthLabel = "NOT AVAILABLE";
+        let healthLabelClass = "health-label-unknown";
+
+        if(health !== null){
+
+            if(health >= 90){
+                healthLabel = "EXCELLENT";
+                healthLabelClass = "health-label-excellent";
+
+            }else if(health >= 75){
+                healthLabel = "GOOD";
+                healthLabelClass = "health-label-good";
+
+            }else if(health >= 50){
+                healthLabel = "WARNING";
+                healthLabelClass = "health-label-warning";
+
+            }else{
+                healthLabel = "CRITICAL";
+                healthLabelClass = "health-label-critical";
+            }
+        }
+
+        const healthText =
+            health === null
+                ? "UNKNOWN"
+                : health + "%";
+
+        return `
+        <div class="card disk-card">
+
+            <div class="card-head">
+                <div>
+                    <div class="card-title">
+                        ${esc(d.name)}
+                    </div>
+
+                    <div class="small" style="margin-top:4px">
+                        ${esc(d.device)} · ${esc(d.mount)}
+                    </div>
+                </div>
+
+                <span class="${badgeClass(d.state)}">
+                    ${esc(d.state)}
+                </span>
+            </div>
+
+            <div class="disk-storage-grid">
+
+                <div>
+                    <span>CAPACITY</span>
+                    <strong>${formatBytesKB(sizeKB)}</strong>
+                </div>
+
+                <div>
+                    <span>USED</span>
+                    <strong>${formatBytesKB(usedKB)}</strong>
+                </div>
+
+                <div>
+                    <span>FREE</span>
+                    <strong>${formatBytesKB(availKB)}</strong>
+                </div>
+
+            </div>
+
+            <div class="disk-info-row">
+
+                <div>
+                    <span>SMART</span>
+                    <strong class="${smartClass}">
+                        ${esc(smart)}
+                        <small>${smartStatus}</small>
+                    </strong>
+                </div>
+
+                <div>
+                    <span>TEMP</span>
+                    <strong class="${temperatureClass}">
+                        ${esc(temperature)}
+                        ${temperature !== "N/A" ? " °C" : ""}
+                        <small>${temperatureStatus}</small>
+                    </strong>
+                </div>
+
+                <div>
+                    <span>PARTITIONS</span>
+                    <strong>
+                        ${Array.isArray(d.partitions) ? d.partitions.length : 0}
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="disk-health-header">
+
+                <span>DISK HEALTH</span>
+
+                <strong>
+                    ${healthText}
+                    <small class="${healthLabelClass}">
+                        ${healthLabel}
+                    </small>
+                </strong>
+
+            </div>
+
+            <div class="progress ${healthClass}">
+                <div
+                    class="progress-bar"
+                    style="width:${health === null ? 0 : health}%"
+                ></div>
+            </div>
+
+            <div class="disk-usage-header">
+
+                <span>STORAGE USAGE</span>
+
+                <strong>${useText}%</strong>
+
+            </div>
+
+            ${warningHTML}
+
+            <div class="progress">
+                <div
+                    class="progress-bar"
+                    style="width:${use}%"
+                ></div>
+            </div>
+
+            <div class="small" style="margin-top:10px">
+                Spindown: ${esc(d.spindown)}
+            </div>
+
+            <div class="disk-card-actions">
+
+                <button
+                    class="disk-details-btn"
+                    type="button"
+                    onclick="showDiskDetails('${esc(d.device)}')"
+                >
+                    DISK DETAILS
+                </button>
+
+                <button
+                    class="disk-details-btn safe-eject-btn"
+                    type="button"
+                    onclick="safeEjectDisk('${esc(d.device)}')"
+                >
+                    ⏏ SAFE EJECT
+                </button>
+
+            </div>
+
+        </div>
+        `;
+    }).join("");
+}
+
+
+async function safeEjectDisk(device) {
+    if (!confirm('Safely remove ' + device + '?')) return;
+
+    try {
+        const response = await fetch(
+            API + '?action=safe_eject&device=' + encodeURIComponent(device) + '&t=' + Date.now(),
+            { cache: 'no-store' }
+        );
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || 'Safe eject failed.');
+        }
+    } catch (error) {
+        alert('Safe eject failed.');
+    }
+}
+
+function showDiskDetails(device){
+
+    window.__openDiskDetailsDevice = String(device);
+
+    const disks = window.__nasDisks || [];
+
+    const disk = disks.find(d =>
+        String(d.device) === String(device)
+    );
+
+    if(!disk){
+        return;
+    }
+
+    let modal = document.getElementById("diskDetailsModal");
+
+    if(!modal){
+
+        modal = document.createElement("div");
+
+        modal.id = "diskDetailsModal";
+        modal.className = "disk-details-modal";
+
+        document.body.appendChild(modal);
+    }
+
+    const healthKnown =
+        disk.health !== undefined &&
+        disk.health !== null &&
+        String(disk.health).trim() !== "" &&
+        String(disk.health).toUpperCase() !== "UNKNOWN";
+
+    const healthNumber =
+        healthKnown ? Number(disk.health) : NaN;
+
+    const health =
+        Number.isFinite(healthNumber)
+            ? Math.max(0, Math.min(100, healthNumber))
+            : null;
+
+    let healthClass = "detail-unknown";
+    let healthLabel = "UNKNOWN";
+
+    if(health !== null){
+
+        if(health >= 90){
+            healthClass = "detail-good";
+            healthLabel = "EXCELLENT";
+
+        }else if(health >= 75){
+            healthClass = "detail-good";
+            healthLabel = "GOOD";
+
+        }else if(health >= 50){
+            healthClass = "detail-warning";
+            healthLabel = "WARNING";
+
+        }else{
+            healthClass = "detail-bad";
+            healthLabel = "CRITICAL";
+        }
+    }
+
+    const healthStatus =
+        disk.health_status !== undefined
+            ? String(disk.health_status)
+            : healthLabel;
+
+    const smart =
+        disk.smart !== undefined
+            ? String(disk.smart)
+            : "N/A";
+
+    const smartUpper = smart.toUpperCase();
+
+    let smartClass = "detail-unknown";
+    let smartLabel = "UNKNOWN";
+
+    if(smartUpper === "PASSED"){
+
+        smartClass = "detail-good";
+        smartLabel = "HEALTHY";
+
+    }else if(
+        smartUpper === "NOT AVAILABLE" ||
+        smartUpper === "N/A"
+    ){
+
+        smartClass = "detail-unknown";
+        smartLabel = "N/A";
+
+    }else{
+
+        smartClass = "detail-bad";
+        smartLabel = "WARNING";
+    }
+
+    const temperature =
+        disk.temperature !== undefined
+            ? String(disk.temperature)
+            : "N/A";
+
+    const temperatureNumber = Number(temperature);
+
+    let temperatureClass = "detail-unknown";
+    let temperatureLabel = "N/A";
+
+    if(Number.isFinite(temperatureNumber)){
+
+        if(temperatureNumber < 45){
+
+            temperatureClass = "detail-good";
+            temperatureLabel = "NORMAL";
+
+        }else if(temperatureNumber <= 50){
+
+            temperatureClass = "detail-warning";
+            temperatureLabel = "WARM";
+
+        }else{
+
+            temperatureClass = "detail-bad";
+            temperatureLabel = "HIGH";
+        }
+    }
+
+    const diskSizeKB = Number(disk.size_kb || 0);
+    const diskUsedKB = Number(disk.used_kb || 0);
+
+    let diskUsage =
+        diskSizeKB > 0
+            ? (diskUsedKB / diskSizeKB) * 100
+            : Number(disk.use || 0);
+
+    diskUsage = Math.max(0, Math.min(100, diskUsage));
+
+    const diskUsageText =
+        diskUsage < 1
+            ? diskUsage.toFixed(2)
+            : diskUsage.toFixed(1);
+
+    const powerHours =
+        disk.power_hours !== undefined
+            ? String(disk.power_hours)
+            : "N/A";
+
+    const reallocated =
+        disk.reallocated !== undefined
+            ? String(disk.reallocated)
+            : "N/A";
+
+    const pending =
+        disk.pending !== undefined
+            ? String(disk.pending)
+            : "N/A";
+
+    const uncorrectable =
+        disk.uncorrectable !== undefined
+            ? String(disk.uncorrectable)
+            : "N/A";
+
+    function attributeClass(value){
+
+        const upper = String(value).toUpperCase().trim();
+
+        if(
+            upper === "0" ||
+            upper === "N/A" ||
+            upper === "NOT AVAILABLE"
+        ){
+            return "detail-good";
+        }
+
+        if(
+            upper === "UNKNOWN" ||
+            upper === ""
+        ){
+            return "detail-unknown";
+        }
+
+        const number = Number(value);
+
+        if(Number.isFinite(number)){
+
+            if(number === 0)
+                return "detail-good";
+
+            if(number <= 5)
+                return "detail-warning";
+
+            return "detail-bad";
+        }
+
+        return "detail-warning";
+    }
+
+    const usbPartitions =
+        Array.isArray(disk.partitions)
+            ? disk.partitions
+            : [];
+
+    const smartScanHTML = `
+        <div class="smart-disk-scan-area" id="smartDiskScanArea">
+
+            <div class="smart-disk-scan-head">
+
+                <div>
+                    <div class="smart-disk-scan-title">
+                        SMART DISK TEST
+                    </div>
+
+                    <div class="smart-disk-scan-subtitle">
+                        فحص صحة القرص الفيزيائي بالكامل
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="smart-disk-scan-modes">
+
+                <button
+                    type="button"
+                    class="smart-disk-scan-btn"
+                    onclick="startSmartDiskScan('${esc(disk.device)}','short')"
+                >
+                    ⚡ فحص سريع
+                </button>
+
+                <button
+                    type="button"
+                    class="smart-disk-scan-btn"
+                    onclick="startSmartDiskScan('${esc(disk.device)}','long')"
+                >
+                    🔍 فحص كامل
+                </button>
+
+            </div>
+
+            <div
+                id="smartDiskScanStatus"
+                class="smart-disk-scan-status"
+            >
+
+                <div class="smart-disk-scan-status-line">
+
+                    <strong id="smartDiskScanState">
+                        جاهز
+                    </strong>
+
+                    <strong id="smartDiskScanPercent">
+                        0%
+                    </strong>
+
+                </div>
+
+                <div class="smart-disk-scan-progress">
+
+                    <div id="smartDiskScanProgress"></div>
+
+                </div>
+
+                <div
+                    id="smartDiskScanResult"
+                    class="smart-disk-scan-result"
+                ></div>
+
+                <button
+                    id="smartDiskScanCancel"
+                    type="button"
+                    class="smart-disk-scan-btn smart-disk-scan-cancel"
+                    onclick="abortSmartDiskScan('${esc(disk.device)}')"
+                >
+                    ✖ إلغاء الفحص
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+    let usbPartitionsHTML = "";
+
+    if(usbPartitions.length > 0){
+
+        const partitionRows = usbPartitions.map(partition => {
+
+            const partitionName =
+                partition.name !== undefined
+                    ? String(partition.name)
+                    : "N/A";
+
+            const partitionDevice =
+                partition.device !== undefined
+                    ? String(partition.device)
+                    : "";
+
+            const partitionSize =
+                partition.size !== undefined
+                    ? String(partition.size)
+                    : "N/A";
+
+            const partitionFS =
+                partition.fstype !== undefined &&
+                String(partition.fstype).trim() !== ""
+                    ? String(partition.fstype)
+                    : "UNKNOWN";
+
+            const partitionMount =
+                partition.mount !== undefined &&
+                String(partition.mount).trim() !== ""
+                    ? String(partition.mount)
+                    : "NOT MOUNTED";
+
+            const safeDevice =
+                partitionDevice.replace(/'/g, "\\'");
+
+            return `
+                <div class="usb-partition">
+
+                    <div class="usb-partition-name">
+                        ${esc(partitionName)}
+                    </div>
+
+                    <div class="usb-partition-size">
+                        ${esc(partitionSize)}
+                    </div>
+
+                    <div class="usb-partition-fs">
+                        ${esc(partitionFS)}
+                    </div>
+
+                    <div class="usb-partition-mount">
+                        ${esc(partitionMount)}
+                    </div>
+
+                    <div class="usb-partition-check">
+
+                        <button
+                            type="button"
+                            class="usb-disk-check-btn"
+                            onclick="ejectFilesystemPartition('${safeDevice}', this)"
+                            ${partitionDevice ? "" : "disabled"}
+                        >
+                            ⏏ إخراج
+                        </button>
+
+                        <button
+                            type="button"
+                            class="usb-disk-check-btn"
+                            onclick="checkFilesystemPartition('${safeDevice}')"
+                            ${partitionDevice ? "" : "disabled"}
+                        >
+                            🔍 فحص
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+
+        usbPartitionsHTML = `
+            <div class="usb-disk-sections">
+
+                <div class="usb-disk-section-title">
+                    <span>USB PARTITIONS</span>
+                    <span>${usbPartitions.length} PARTITIONS</span>
+                </div>
+
+                <div class="usb-disk-card">
+
+                    <div class="usb-disk-head">
+
+                        <div class="usb-disk-head-main">
+
+                            <div class="usb-disk-name">
+                                ${esc(disk.name)}
+                            </div>
+
+                            <div class="usb-disk-device">
+                                ${esc(disk.device)}
+                            </div>
+
+                        </div>
+
+                        <div class="usb-disk-size">
+                            ${esc(
+                                disk.size !== undefined
+                                    ? String(disk.size)
+                                    : "N/A"
+                            )}
+                        </div>
+
+                    </div>
+
+                    <div class="usb-partitions">
+
+                        ${partitionRows}
+
+                    </div>
+
+
+
+            </div>
+        `;
+    }
+
+    modal.innerHTML = `
+        <div class="disk-details-backdrop"
+             onclick="closeDiskDetails()"></div>
+
+        <div class="disk-details-panel">
+
+            <div class="disk-details-head">
+
+                <div>
+                    <div class="disk-details-title">
+                        ${esc(disk.name)}
+                    </div>
+
+                    <div class="small">
+                        ${esc(disk.device)}
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    class="disk-details-close"
+                    onclick="closeDiskDetails()"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="disk-details-grid">
+
+                <div>
+                    <span>DEVICE</span>
+                    <strong>${esc(disk.device)}</strong>
+                </div>
+
+                <div>
+                    <span>MOUNT POINT</span>
+                    <strong>${esc(disk.mount)}</strong>
+                </div>
+
+                <div>
+                    <span>STATE</span>
+                    <strong>${esc(disk.state)}</strong>
+                </div>
+
+                <div>
+                    <span>SPINDOWN</span>
+                    <strong>${esc(disk.spindown)}</strong>
+                </div>
+
+                <div>
+                    <span>CAPACITY</span>
+                    <strong>${formatBytesKB(disk.size_kb)}</strong>
+                </div>
+
+                <div>
+                    <span>USED</span>
+                    <strong>${formatBytesKB(disk.used_kb)}</strong>
+                </div>
+
+                <div>
+                    <span>AVAILABLE</span>
+                    <strong>${formatBytesKB(disk.avail_kb)}</strong>
+                </div>
+
+                <div>
+                    <span>STORAGE USAGE</span>
+                    <strong>${diskUsageText}%</strong>
+
+                    <div class="disk-detail-usage-bar">
+                        <div style="width:${diskUsage}%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <span>SMART</span>
+                    <strong class="${smartClass}">
+                        ${esc(smart)}
+                        <small class="detail-label">
+                            ${smartLabel}
+                        </small>
+                    </strong>
+                </div>
+
+                <div>
+                    <span>TEMPERATURE</span>
+                    <strong class="${temperatureClass}">
+                        ${esc(temperature)}
+                        ${temperature !== "N/A" ? " °C" : ""}
+                        <small class="detail-label">
+                            ${temperatureLabel}
+                        </small>
+                    </strong>
+                </div>
+
+                <div>
+                    <span>POWER-ON HOURS</span>
+                    <strong>
+                        ${esc(powerHours)}
+                        ${powerHours !== "N/A" ? " h" : ""}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>DISK HEALTH</span>
+                    <strong class="${healthClass}">
+                        ${health === null ? "UNKNOWN" : health + "%"}
+                        <small class="detail-label">
+                            ${esc(healthStatus || healthLabel)}
+                        </small>
+                        <button
+                            type="button"
+                            class="smart-details-btn"
+                            onclick="showSmartDetails('${esc(disk.device)}')">
+                            SMART DETAILS
+                        </button>
+
+
+                    </strong>
+                </div>
+
+            </div>
+
+            ${smartScanHTML}
+
+            ${usbPartitionsHTML}
+
+
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+    modal.classList.add("visible");
+
+    document.body.style.overflow = "hidden";
+
+    if(!window.__diskDetailsEscapeHandler){
+
+        window.__diskDetailsEscapeHandler = function(event){
+
+            if(event.key === "Escape"){
+
+                const currentModal =
+                    document.getElementById("diskDetailsModal");
+
+                if(
+                    currentModal &&
+                    currentModal.classList.contains("visible")
+                ){
+                    closeDiskDetails();
+                }
+            }
+        };
+
+        document.addEventListener(
+            "keydown",
+            window.__diskDetailsEscapeHandler
+        );
+    }
+}
+
+async function ejectFilesystemPartition(device, button){
+
+    const partitionDevice =
+        String(device || "").trim();
+
+    if(!partitionDevice){
+        alert("جهاز غير صالح");
+        return;
+    }
+
+    if(!button){
+        return;
+    }
+
+    const originalText =
+        button.textContent;
+
+    button.disabled = true;
+    button.textContent = "⏳ جاري الإخراج...";
+
+    try{
+
+        const encodedDevice =
+            encodeURIComponent(partitionDevice)
+                .replace(/%2F/g, "/");
+
+        console.log(
+            "NAS EJECT DEVICE:",
+            partitionDevice
+        );
+
+        console.log(
+            "NAS EJECT URL:",
+            "/cgi-bin/nas-status?action=fs_eject&device=" +
+            encodedDevice
+        );
+
+        const response =
+            await fetch(
+                "/cgi-bin/nas-status?action=fs_eject&device=" +
+                encodedDevice,
+                {
+                    cache: "no-store"
+                }
+            );
+
+        if(!response.ok){
+            throw new Error(
+                "HTTP " + response.status
+            );
+        }
+
+        const result =
+            await response.json();
+
+        if(result.success){
+
+            button.textContent = "✅ تم الإخراج";
+
+            const row =
+                button.closest(".usb-partition");
+
+            if(row){
+
+                const mountElement =
+                    row.querySelector(
+                        ".usb-partition-mount"
+                    );
+
+                if(mountElement){
+                    mountElement.textContent =
+                        "NOT MOUNTED";
+                }
+            }
+
+            setTimeout(() => {
+                button.textContent = "⏏ إخراج";
+                button.disabled = false;
+            }, 1500);
+
+        }else{
+
+            button.textContent = originalText;
+            button.disabled = false;
+
+            alert(
+                "تعذر إخراج Partition:\n\n" +
+                (result.message || "خطأ غير معروف") +
+                (
+                    result.detail
+                        ? "\n\n" + result.detail
+                        : ""
+                )
+            );
+        }
+
+    }catch(error){
+
+        console.error(
+            "Filesystem eject failed:",
+            error
+        );
+
+        button.textContent = originalText;
+        button.disabled = false;
+
+        alert(
+            "فشل الاتصال بخدمة إخراج Partition:\n\n" +
+            error.message
+        );
+    }
+}
+
+async function checkFilesystemPartition(device){
+
+    if(!device){
+        alert("جهاز غير صالح");
+        return;
+    }
+
+    const encodedDevice =
+        encodeURIComponent(String(device))
+            .replace(/%2F/g, "/");
+
+    /*
+     * Find the partition row containing this device.
+     * The five-column partition layout itself is not modified.
+     */
+    let partitionRow = null;
+
+    document.querySelectorAll(".usb-partition").forEach(function(row){
+
+        if(partitionRow){
+            return;
+        }
+
+        row.querySelectorAll("button").forEach(function(button){
+
+            const onclickText =
+                button.getAttribute("onclick") || "";
+
+            if(onclickText.includes(String(device))){
+                partitionRow = row;
+            }
+        });
+    });
+
+    if(!partitionRow){
+        console.warn(
+            "Filesystem check: partition row not found:",
+            device
+        );
+        alert("تعذر العثور على بطاقة Partition.");
+        return;
+    }
+
+    /*
+     * Remove an old result area for this partition.
+     */
+    const oldResult =
+        partitionRow.querySelector(
+            ".filesystem-check-result"
+        );
+
+    if(oldResult){
+        oldResult.remove();
+    }
+
+    /*
+     * Create the inline filesystem-check panel.
+     */
+    const resultPanel =
+        document.createElement("div");
+
+    resultPanel.className =
+        "filesystem-check-result";
+
+    resultPanel.style.cssText = [
+        "grid-column:1 / -1",
+        "margin-top:8px",
+        "padding:10px",
+        "border:1px solid rgba(0,255,136,.12)",
+        "border-radius:8px",
+        "background:rgba(0,0,0,.16)"
+    ].join(";");
+
+    resultPanel.innerHTML = `
+        <div style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            margin-bottom:8px;
+        ">
+            <strong style="
+                font-size:10px;
+                color:#00ff88;
+            ">
+                🔍 فحص نظام الملفات
+            </strong>
+
+            <span
+                class="filesystem-check-percent"
+                style="
+                    font-size:10px;
+                    font-weight:700;
+                    color:#00ff88;
+                "
+            >
+                0%
+            </span>
+        </div>
+
+        <div style="
+            width:100%;
+            height:7px;
+            overflow:hidden;
+            border-radius:99px;
+            background:rgba(255,255,255,.055);
+        ">
+            <div
+                class="filesystem-check-progress"
+                style="
+                    width:0%;
+                    height:100%;
+                    border-radius:99px;
+                    background:linear-gradient(
+                        90deg,
+                        #00ff88,
+                        #00d9ff,
+                        #00ff88
+                    );
+                    background-size:200% 100%;
+                    transition:width .5s ease;
+                    animation:filesystemCheckGlow 1.5s linear infinite;
+                "
+            ></div>
+        </div>
+
+        <div
+            class="filesystem-check-status"
+            style="
+                margin-top:8px;
+                font-size:9px;
+                opacity:.65;
+            "
+        >
+            جارٍ بدء الفحص...
+        </div>
+
+        <div
+            class="filesystem-check-output"
+            style="
+                display:none;
+                margin-top:9px;
+                max-height:180px;
+                overflow:auto;
+                padding:8px;
+                border-radius:6px;
+                background:rgba(0,0,0,.22);
+                font-family:monospace;
+                font-size:8px;
+                line-height:1.5;
+                white-space:pre-wrap;
+                word-break:break-word;
+                opacity:.72;
+            "
+        ></div>
+
+        <div
+            class="filesystem-check-actions"
+            style="
+                display:none;
+                margin-top:9px;
+                align-items:center;
+                gap:7px;
+            "
+        ></div>
+    `;
+
+    partitionRow.appendChild(resultPanel);
+
+    const progressBar =
+        resultPanel.querySelector(
+            ".filesystem-check-progress"
+        );
+
+    const percentLabel =
+        resultPanel.querySelector(
+            ".filesystem-check-percent"
+        );
+
+    const statusLabel =
+        resultPanel.querySelector(
+            ".filesystem-check-status"
+        );
+
+    const outputBox =
+        resultPanel.querySelector(
+            ".filesystem-check-output"
+        );
+
+    const actionsBox =
+        resultPanel.querySelector(
+            ".filesystem-check-actions"
+        );
+
+    function setProgress(percent){
+
+        const value =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    Number(percent) || 0
+                )
+            );
+
+        progressBar.style.width =
+            value + "%";
+
+        percentLabel.textContent =
+            Math.round(value) + "%";
+    }
+
+    function showRepairButton(){
+
+        actionsBox.innerHTML = `
+            <button
+                type="button"
+                class="usb-disk-check-btn"
+                onclick="repairFilesystemPartition('${String(device).replace(/'/g, "\\'")}')"
+            >
+                🔧 إصلاح
+            </button>
+        `;
+
+        actionsBox.style.display =
+            "flex";
+    }
+
+    function finishUI(result){
+
+        setProgress(100);
+
+        const needsRepair =
+            result.needs_repair === true;
+
+        const clean =
+            result.result === "CLEAN";
+
+        if(clean){
+
+            statusLabel.textContent =
+                "✅ CLEAN — نظام الملفات سليم";
+
+            statusLabel.style.color =
+                "#00ff88";
+
+        }else if(needsRepair){
+
+            statusLabel.textContent =
+                "⚠️ ISSUES DETECTED — تم اكتشاف مشاكل";
+
+            statusLabel.style.color =
+                "#ffd700";
+
+            showRepairButton();
+
+        }else{
+
+            statusLabel.textContent =
+                "⚠️ انتهى الفحص مع نتيجة غير طبيعية";
+
+            statusLabel.style.color =
+                "#ffd700";
+        }
+
+        if(result.output){
+
+            outputBox.textContent =
+                result.output;
+
+            outputBox.style.display =
+                "block";
+        }
+    }
+
+    try{
+
+        /*
+         * Start background filesystem check.
+         */
+        statusLabel.textContent =
+            "جارٍ بدء فحص نظام الملفات...";
+
+        const startResponse =
+            await fetch(
+                "/cgi-bin/nas-status?action=fs_check_start&device=" +
+                encodedDevice +
+                "&_t=" + Date.now(),
+                {
+                    cache:"no-store"
+                }
+            );
+
+        if(!startResponse.ok){
+            throw new Error(
+                "HTTP " + startResponse.status
+            );
+        }
+
+        const startResult =
+            await startResponse.json();
+
+        if(!startResult.success){
+
+            statusLabel.textContent =
+                "❌ تعذر بدء الفحص: " +
+                (
+                    startResult.message ||
+                    "خطأ غير معروف"
+                );
+
+            statusLabel.style.color =
+                "#ff5555";
+
+            setProgress(0);
+
+            return;
+        }
+
+        setProgress(
+            startResult.progress || 0
+        );
+
+        statusLabel.textContent =
+            "🔍 الفحص يعمل الآن...";
+
+        /*
+         * Poll filesystem job every second.
+         */
+        const pollFilesystemCheck =
+            async () => {
+
+                try{
+
+                    const statusResponse =
+                        await fetch(
+                            "/cgi-bin/nas-status?action=fs_check_status&device=" +
+                            encodedDevice +
+                            "&_t=" + Date.now(),
+                            {
+                                cache:"no-store"
+                            }
+                        );
+
+                    if(!statusResponse.ok){
+                        throw new Error(
+                            "HTTP " +
+                            statusResponse.status
+                        );
+                    }
+
+                    const result =
+                        await statusResponse.json();
+
+                    if(!result.success){
+
+                        statusLabel.textContent =
+                            "❌ تعذر قراءة حالة الفحص: " +
+                            (
+                                result.message ||
+                                "خطأ غير معروف"
+                            );
+
+                        statusLabel.style.color =
+                            "#ff5555";
+
+                        return;
+                    }
+
+                    setProgress(
+                        result.progress || 0
+                    );
+
+                    if(result.state === "RUNNING"){
+
+                        statusLabel.textContent =
+                            "🔍 جارٍ فحص نظام الملفات...";
+
+                        setTimeout(
+                            pollFilesystemCheck,
+                            1000
+                        );
+
+                        return;
+                    }
+
+                    if(result.state === "FINISHED"){
+
+                        finishUI(result);
+                        return;
+                    }
+
+                    statusLabel.textContent =
+                        "ℹ️ حالة الفحص: " +
+                        (
+                            result.state ||
+                            "UNKNOWN"
+                        );
+
+                    setTimeout(
+                        pollFilesystemCheck,
+                        1000
+                    );
+
+                }catch(error){
+
+                    console.error(
+                        "Filesystem check polling failed:",
+                        error
+                    );
+
+                    statusLabel.textContent =
+                        "❌ فشل تحديث حالة الفحص: " +
+                        error.message;
+
+                    statusLabel.style.color =
+                        "#ff5555";
+                }
+            };
+
+        setTimeout(
+            pollFilesystemCheck,
+            500
+        );
+
+    }catch(error){
+
+        console.error(
+            "Filesystem check start failed:",
+            error
+        );
+
+        statusLabel.textContent =
+            "❌ فشل بدء فحص الملفات: " +
+            error.message;
+
+        statusLabel.style.color =
+            "#ff5555";
+    }
+}
+
+async function repairFilesystemPartition(device){
+
+    const partitionDevice =
+        String(device || "").trim();
+
+    if(!partitionDevice){
+        alert("جهاز غير صالح");
+        return;
+    }
+
+    if(!confirm(
+        "⚠️ إصلاح نظام الملفات\n\n" +
+        "الجهاز: " + partitionDevice + "\n\n" +
+        "سيتم تنفيذ إصلاح فعلي لنظام الملفات.\n" +
+        "يجب أن يكون Partition غير مركب.\n\n" +
+        "هل تريد المتابعة؟"
+    )){
+        return;
+    }
+
+    const encodedDevice =
+        encodeURIComponent(partitionDevice)
+            .replace(/%2F/g, "/");
+
+    try{
+
+        const response =
+            await fetch(
+                "/cgi-bin/nas-status?action=fs_repair&device=" +
+                encodedDevice,
+                {
+                    cache: "no-store"
+                }
+            );
+
+        if(!response.ok){
+            throw new Error(
+                "HTTP " + response.status
+            );
+        }
+
+        const result =
+            await response.json();
+
+        if(result.success){
+
+            alert(
+                "✅ تم تنفيذ إصلاح نظام الملفات.\n\n" +
+                "الجهاز: " +
+                (result.device || partitionDevice) +
+                "\n" +
+                "Filesystem: " +
+                (result.fstype || "UNKNOWN") +
+                "\n" +
+                "الحالة: " +
+                (result.repair_status || "تم التنفيذ") +
+                "\n" +
+                "Return code: " +
+                String(
+                    result.repair_return !== undefined
+                        ? result.repair_return
+                        : "N/A"
+                ) +
+                "\n\n" +
+                "النتيجة:\n" +
+                (result.repair_output ||
+                    "لا توجد نتيجة من أداة الإصلاح.")
+            );
+
+        }else{
+
+            alert(
+                "⚠️ تعذر إصلاح نظام الملفات:\n\n" +
+                (result.message || "خطأ غير معروف") +
+                (
+                    result.detail
+                        ? "\n\n" + result.detail
+                        : ""
+                )
+            );
+        }
+
+    }catch(error){
+
+        console.error(
+            "Filesystem repair request failed:",
+            error
+        );
+
+        alert(
+            "فشل الاتصال بخدمة إصلاح الملفات:\n\n" +
+            error.message
+        );
+    }
+}
+
+let __smartDiskScanTimer = null;
+let __smartDiskScanDevice = null;
+
+function setSmartDiskScanUI(state, progress, message){
+
+    const status =
+        document.getElementById("smartDiskScanStatus");
+
+    const stateEl =
+        document.getElementById("smartDiskScanState");
+
+    const percentEl =
+        document.getElementById("smartDiskScanPercent");
+
+    const progressEl =
+        document.getElementById("smartDiskScanProgress");
+
+    const resultEl =
+        document.getElementById("smartDiskScanResult");
+
+    if(!status || !stateEl || !percentEl || !progressEl){
+        return;
+    }
+
+    status.classList.add("visible");
+
+    const value =
+        Math.max(0, Math.min(100, Number(progress) || 0));
+
+    stateEl.textContent = state || "UNKNOWN";
+    percentEl.textContent = value + "%";
+    progressEl.style.width = value + "%";
+
+    if(resultEl){
+        resultEl.textContent = message || "";
+    }
+}
+
+async function startSmartDiskScan(device, mode){
+
+    if(!device){
+        alert("جهاز غير صالح");
+        return;
+    }
+
+    if(mode !== "short" && mode !== "long"){
+        alert("نوع فحص غير صالح");
+        return;
+    }
+
+    const modeName =
+        mode === "short"
+            ? "⚡ الفحص السريع"
+            : "🔍 الفحص الكامل";
+
+    if(!confirm(
+        modeName +
+        "\n\n" +
+        "الجهاز: " + device +
+        "\n\n" +
+        "سيتم تشغيل SMART self-test على القرص الفيزيائي.\n" +
+        "هل تريد المتابعة؟"
+    )){
+        return;
+    }
+
+    if(__smartDiskScanTimer){
+        clearTimeout(__smartDiskScanTimer);
+        __smartDiskScanTimer = null;
+    }
+
+    __smartDiskScanDevice = device;
+
+    const buttons =
+        document.querySelectorAll(
+            ".smart-disk-scan-modes .smart-disk-scan-btn"
+        );
+
+    buttons.forEach(button => {
+        button.disabled = true;
+    });
+
+    const cancel =
+        document.getElementById("smartDiskScanCancel");
+
+    if(cancel){
+        cancel.classList.add("visible");
+    }
+
+    setSmartDiskScanUI(
+        "بدء " + modeName,
+        0,
+        "جاري تشغيل اختبار SMART..."
+    );
+
+    const encodedDevice =
+        encodeURIComponent(String(device))
+            .replace(/%2F/g, "/");
+
+    try{
+
+        const response =
+            await fetch(
+                "/cgi-bin/nas-status?action=smart_scan_start" +
+                "&device=" + encodedDevice +
+                "&mode=" + mode,
+                {
+                    cache:"no-store"
+                }
+            );
+
+        if(!response.ok){
+            throw new Error("HTTP " + response.status);
+        }
+
+        const result =
+            await response.json();
+
+        if(!result.success){
+
+            if(buttons){
+                buttons.forEach(button => {
+                    button.disabled = false;
+                });
+            }
+
+            if(cancel){
+                cancel.classList.remove("visible");
+            }
+
+            setSmartDiskScanUI(
+                result.state || "ERROR",
+                0,
+                result.message || "تعذر بدء الفحص."
+            );
+
+            return;
+        }
+
+        setSmartDiskScanUI(
+            "RUNNING",
+            0,
+            mode === "short"
+                ? "الفحص السريع يعمل الآن..."
+                : "الفحص الكامل يعمل الآن..."
+        );
+
+        pollSmartDiskScan(device);
+
+    }catch(error){
+
+        buttons.forEach(button => {
+            button.disabled = false;
+        });
+
+        if(cancel){
+            cancel.classList.remove("visible");
+        }
+
+        setSmartDiskScanUI(
+            "ERROR",
+            0,
+            "فشل الاتصال بخدمة SMART: " + error.message
+        );
+    }
+}
+
+async function pollSmartDiskScan(device){
+
+    if(!device){
+        return;
+    }
+
+    const encodedDevice =
+        encodeURIComponent(String(device))
+            .replace(/%2F/g, "/");
+
+    try{
+
+        const response =
+            await fetch(
+                "/cgi-bin/nas-status?action=smart_scan_status" +
+                "&device=" + encodedDevice +
+                "&_t=" + Date.now(),
+                {
+                    cache:"no-store"
+                }
+            );
+
+        if(!response.ok){
+            throw new Error("HTTP " + response.status);
+        }
+
+        const result =
+            await response.json();
+
+        if(result.state === "RUNNING"){
+
+            setSmartDiskScanUI(
+                "RUNNING",
+                Number(result.progress || 0),
+                "متبقي " +
+                Number(result.remaining || 0) +
+                "% من الاختبار."
+            );
+
+            __smartDiskScanTimer =
+                setTimeout(
+                    () => pollSmartDiskScan(device),
+                    1000
+                );
+
+            return;
+        }
+
+        if(result.state === "FINISHED"){
+
+            const passed =
+                String(result.result || "").toUpperCase() === "PASSED";
+
+            setSmartDiskScanUI(
+                passed
+                    ? "PASSED"
+                    : "FAILED",
+                100,
+                passed
+                    ? "✅ اكتمل الفحص بنجاح — لا توجد أخطاء في اختبار SMART."
+                    : "⚠️ اكتمل الفحص مع وجود مشكلة: " +
+                      (result.message || "راجع سجل SMART.")
+            );
+
+            finishSmartDiskScanUI();
+            return;
+        }
+
+        if(result.state === "IDLE"){
+
+            setSmartDiskScanUI(
+                "IDLE",
+                0,
+                "لا يوجد اختبار SMART قيد التشغيل."
+            );
+
+            finishSmartDiskScanUI();
+            return;
+        }
+
+        setSmartDiskScanUI(
+            result.state || "ERROR",
+            Number(result.progress || 0),
+            result.message || "حدث خطأ أثناء الفحص."
+        );
+
+        finishSmartDiskScanUI();
+
+    }catch(error){
+
+        setSmartDiskScanUI(
+            "ERROR",
+            0,
+            "فشل قراءة حالة SMART: " + error.message
+        );
+
+        finishSmartDiskScanUI();
+    }
+}
+
+function finishSmartDiskScanUI(){
+
+    const buttons =
+        document.querySelectorAll(
+            ".smart-disk-scan-modes .smart-disk-scan-btn"
+        );
+
+    buttons.forEach(button => {
+        button.disabled = false;
+    });
+
+    const cancel =
+        document.getElementById("smartDiskScanCancel");
+
+    if(cancel){
+        cancel.classList.remove("visible");
+    }
+
+    __smartDiskScanDevice = null;
+}
+
+async function abortSmartDiskScan(device){
+
+    if(!device){
+        return;
+    }
+
+    if(!confirm(
+        "⚠️ إلغاء فحص SMART\n\n" +
+        "الجهاز: " + device +
+        "\n\n" +
+        "هل تريد إلغاء الاختبار الحالي؟"
+    )){
+        return;
+    }
+
+    const encodedDevice =
+        encodeURIComponent(String(device))
+            .replace(/%2F/g, "/");
+
+    try{
+
+        const response =
+            await fetch(
+                "/cgi-bin/nas-status?action=smart_scan_abort" +
+                "&device=" + encodedDevice,
+                {
+                    cache:"no-store"
+                }
+            );
+
+        if(!response.ok){
+            throw new Error("HTTP " + response.status);
+        }
+
+        const result =
+            await response.json();
+
+        if(result.success){
+
+            if(__smartDiskScanTimer){
+                clearTimeout(__smartDiskScanTimer);
+                __smartDiskScanTimer = null;
+            }
+
+            setSmartDiskScanUI(
+                "ABORTED",
+                0,
+                "تم إلغاء فحص SMART."
+            );
+
+            finishSmartDiskScanUI();
+
+        }else{
+
+            alert(
+                "تعذر إلغاء الفحص:\n\n" +
+                (result.message || "خطأ غير معروف")
+            );
+        }
+
+    }catch(error){
+
+        alert(
+            "فشل إلغاء فحص SMART:\n\n" +
+            error.message
+        );
+    }
+}
+
+function closeDiskDetails(){
+
+    const modal =
+        document.getElementById("diskDetailsModal");
+
+    if(modal){
+        modal.classList.remove("visible");
+    }
+
+    document.body.style.overflow = "";
+    window.__openDiskDetailsDevice = null;
+}
+
+
+function showProcessManager(){
+
+    let modal = document.getElementById("processManagerModal");
+
+    if(!modal){
+
+        modal = document.createElement("div");
+
+        modal.id = "processManagerModal";
+        modal.className = "disk-details-modal";
+
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div
+            class="disk-details-backdrop"
+            onclick="closeProcessManager()">
+        </div>
+
+        <div class="disk-details-panel">
+
+            <div class="disk-details-head">
+
+                <div>
+                    <div class="disk-details-title">
+                        PROCESS MANAGER
+                    </div>
+
+                    <div class="small">
+                        Running processes and resource usage
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    class="disk-details-close"
+                    onclick="closeProcessManager()">
+                    ×
+                </button>
+
+            </div>
+
+            <div id="processManagerList"
+                 class="process-manager-list">
+
+                <div class="small">
+                    Loading processes...
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+    modal.classList.add("visible");
+
+    document.body.style.overflow = "hidden";
+
+    refreshProcessManager();
+
+    if(window.__processManagerTimer){
+        clearInterval(window.__processManagerTimer);
+    }
+
+    window.__processManagerTimer =
+        setInterval(function(){
+
+            const currentModal =
+                document.getElementById("processManagerModal");
+
+            if(
+                currentModal &&
+                currentModal.classList.contains("visible")
+            ){
+                refreshProcessManager();
+            }
+
+        }, 3000);
+
+    if(!window.__processManagerEscapeHandler){
+
+        window.__processManagerEscapeHandler = function(event){
+
+            if(event.key === "Escape"){
+
+                const currentModal =
+                    document.getElementById("processManagerModal");
+
+                if(
+                    currentModal &&
+                    currentModal.classList.contains("visible")
+                ){
+                    closeProcessManager();
+                }
+            }
+        };
+
+        document.addEventListener(
+            "keydown",
+            window.__processManagerEscapeHandler
+        );
+    }
+}
+
+
+function closeProcessManager(){
+
+    const modal =
+        document.getElementById("processManagerModal");
+
+    if(modal){
+        modal.classList.remove("visible");
+    }
+
+    document.body.style.overflow = "";
+
+    if(window.__processManagerTimer){
+
+        clearInterval(
+            window.__processManagerTimer
+        );
+
+        window.__processManagerTimer = null;
+    }
+}
+
+
+async function showKillProcessConfirm(pid){
+
+    pid = parseInt(pid, 10);
+
+    if(!Number.isInteger(pid) || pid <= 1){
+
+        alert("Invalid or protected PID.");
+        return;
+    }
+
+    const confirmed = confirm(
+        "KILL PROCESS\n\n" +
+        "PID: " + pid + "\n\n" +
+        "The process will receive SIGTERM first.\n" +
+        "If it does not exit, SIGKILL may be used.\n\n" +
+        "Do you want to continue?"
+    );
+
+    if(!confirmed){
+        return;
+    }
+
+    try{
+
+        const response = await fetch(
+            API +
+            "?action=kill&pid=" +
+            encodeURIComponent(pid) +
+            "&t=" +
+            Date.now(),
+            {
+                method: "GET",
+                cache: "no-store"
+            }
+        );
+
+        if(!response.ok){
+
+            throw new Error(
+                "HTTP " + response.status
+            );
+        }
+
+        const result = await response.json();
+
+        if(result.success){
+
+            alert(
+                "Process terminated successfully.\n\n" +
+                "PID: " + pid + "\n" +
+                "Signal: " + (result.signal || "SIGTERM")
+            );
+
+            refreshProcessManager();
+
+        }else{
+
+            alert(
+                "KILL failed.\n\n" +
+                "PID: " + pid + "\n" +
+                "Reason: " +
+                (result.error || "Unknown error")
+            );
+        }
+
+    }catch(error){
+
+        console.error(
+            "Process KILL error:",
+            error
+        );
+
+        alert(
+            "Unable to execute KILL.\n\n" +
+            (error.message || error)
+        );
+    }
+}
+
+
+async function showSmartDetails(device){
+
+    if(!device){
+        alert("Invalid disk device.");
+        return;
+    }
+
+    let modal = document.getElementById("smartDetailsModal");
+
+    if(!modal){
+
+        modal = document.createElement("div");
+
+        modal.id = "smartDetailsModal";
+        modal.className = "disk-details-modal";
+
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div class="disk-details-panel">
+
+            <div class="disk-details-header">
+                <div>
+                    <h2>SMART DETAILS</h2>
+                    <div class="disk-details-subtitle">
+                        Live SMART attributes — ${esc(device)}
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    class="disk-details-close"
+                    onclick="document.getElementById('smartDetailsModal').remove()">
+                    ✕
+                </button>
+            </div>
+
+            <div id="smartDetailsContent">
+                <div class="smart-details-loading">
+                    Reading SMART data...
+                </div>
+            </div>
+
+        </div>
+    `;
+
+    modal.style.display = "flex";
+
+    const content =
+        document.getElementById("smartDetailsContent");
+
+    try{
+
+        const encodedDevice =
+            encodeURIComponent(String(device)).replace(/%2F/g, "/");
+
+        const response = await fetch(
+            "/cgi-bin/nas-status?action=smart_details" +
+            "&device=" + encodedDevice +
+            "&_t=" + Date.now(),
+            {
+                cache: "no-store"
+            }
+        );
+
+        if(!response.ok){
+            throw new Error("HTTP " + response.status);
+        }
+
+        const result = await response.json();
+
+        if(!result.success){
+            throw new Error(
+                result.message || "Unable to read SMART data."
+            );
+        }
+
+        const attributes =
+            Array.isArray(result.attributes)
+                ? result.attributes
+                : [];
+
+        if(!attributes.length){
+
+            content.innerHTML = `
+                <div class="smart-details-loading">
+                    No SMART attributes available.
+                </div>
+            `;
+
+            return;
+        }
+
+        content.innerHTML = `
+            <div class="smart-details-table-wrap">
+
+                <table class="smart-details-table">
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ATTRIBUTE NAME</th>
+                            <th>VALUE</th>
+                            <th>WORST</th>
+                            <th>THRESH</th>
+                            <th>STATUS</th>
+                            <th>RAW VALUE</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        ${attributes.map(attribute => `
+
+                            <tr>
+
+                                <td>${esc(attribute.id)}</td>
+
+                                <td>
+                                    ${esc(attribute.name || "N/A")}
+                                </td>
+
+                                <td>
+                                    ${esc(attribute.value)}
+                                </td>
+
+                                <td>
+                                    ${esc(attribute.worst)}
+                                </td>
+
+                                <td>
+                                    ${esc(attribute.thresh)}
+                                </td>
+
+                                <td>
+                                    <span class="${
+                                        String(attribute.status || "")
+                                            .toUpperCase() === "OK"
+                                            ? "detail-good"
+                                            : "detail-warning"
+                                    }">
+                                        ${esc(attribute.status || "N/A")}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    ${esc(attribute.raw || "0")}
+                                </td>
+
+                            </tr>
+
+                        `).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        `;
+
+    }catch(error){
+
+        if(content){
+
+            content.innerHTML = `
+                <div class="smart-details-loading">
+                    ❌ Failed to read SMART data.
+                    <br><br>
+                    ${esc(error.message || String(error))}
+                </div>
+            `;
+        }
+    }
+}
+
+function refreshProcessManager(){
+
+    const list =
+        document.getElementById("processManagerList");
+
+    if(!list){
+        return;
+    }
+
+    const processes =
+        Array.isArray(window.__nasProcesses)
+            ? [...window.__nasProcesses]
+            : [];
+
+    if(!processes.length){
+
+        list.innerHTML = `
+            <div class="system-logs-empty">
+                No process information available.
+            </div>
+        `;
+
+        return;
+    }
+
+    if(!window.__processManagerSort){
+        window.__processManagerSort = {
+            field: "cpu",
+            direction: "desc"
+        };
+    }
+
+    const sortState =
+        window.__processManagerSort;
+
+    processes.sort(function(a, b){
+
+        let av;
+        let bv;
+        let result;
+
+        switch(sortState.field){
+
+            case "pid":
+
+                av = parseInt(a.pid, 10) || 0;
+                bv = parseInt(b.pid, 10) || 0;
+
+                result = av - bv;
+
+                break;
+
+            case "process":
+
+                av = String(a.command || "")
+                    .toLowerCase();
+
+                bv = String(b.command || "")
+                    .toLowerCase();
+
+                result = av.localeCompare(bv);
+
+                break;
+
+            case "cpu":
+
+                av = parseFloat(
+                    String(a.cpu_percent || "0")
+                        .replace(/%+$/, "")
+                ) || 0;
+
+                bv = parseFloat(
+                    String(b.cpu_percent || "0")
+                        .replace(/%+$/, "")
+                ) || 0;
+
+                result = av - bv;
+
+                break;
+
+            case "mem":
+
+                av = parseFloat(
+                    String(a.mem_percent || "0")
+                        .replace(/%+$/, "")
+                ) || 0;
+
+                bv = parseFloat(
+                    String(b.mem_percent || "0")
+                        .replace(/%+$/, "")
+                ) || 0;
+
+                result = av - bv;
+
+                break;
+
+            case "state":
+
+                av = String(a.state || "")
+                    .toLowerCase();
+
+                bv = String(b.state || "")
+                    .toLowerCase();
+
+                result = av.localeCompare(bv);
+
+                break;
+
+            case "user":
+
+                av = String(a.user || "")
+                    .toLowerCase();
+
+                bv = String(b.user || "")
+                    .toLowerCase();
+
+                result = av.localeCompare(bv);
+
+                break;
+
+            default:
+
+                return 0;
+        }
+
+        if(result !== 0){
+
+            return sortState.direction === "asc"
+                ? result
+                : -result;
+        }
+
+        /*
+         * Secondary PID sort.
+         * This makes the direction visibly reversible
+         * even when two processes have the same value.
+         */
+
+        const apid = parseInt(a.pid, 10) || 0;
+        const bpid = parseInt(b.pid, 10) || 0;
+
+        return sortState.direction === "asc"
+            ? apid - bpid
+            : bpid - apid;
+    });
+
+    const pidArrow =
+        sortState.field === "pid"
+            ? (sortState.direction === "asc" ? "▲" : "▼")
+            : "↕";
+
+    const processArrow =
+        sortState.field === "process"
+            ? (sortState.direction === "asc" ? "▲" : "▼")
+            : "↕";
+
+    const cpuArrow =
+        sortState.field === "cpu"
+            ? (sortState.direction === "asc" ? "▲" : "▼")
+            : "↕";
+
+    const memArrow =
+        sortState.field === "mem"
+            ? (sortState.direction === "asc" ? "▲" : "▼")
+            : "↕";
+
+    const stateArrow =
+        sortState.field === "state"
+            ? (sortState.direction === "asc" ? "▲" : "▼")
+            : "↕";
+
+    const userArrow =
+        sortState.field === "user"
+            ? (sortState.direction === "asc" ? "▲" : "▼")
+            : "↕";
+
+    const rows =
+        processes.map(process => {
+
+            const cpu =
+                String(process.cpu_percent || "0")
+                    .replace(/%+$/, "");
+
+            const mem =
+                String(process.mem_percent || "0")
+                    .replace(/%+$/, "");
+
+            const command =
+                String(process.command || "—");
+
+            return `
+                <div class="process-manager-row">
+
+                    <div class="process-manager-pid">
+                        ${esc(process.pid)}
+                    </div>
+
+                    <div class="process-manager-process"
+                         title="${esc(command)}">
+                        ${esc(command)}
+                    </div>
+
+                    <div class="process-manager-cpu">
+                        ${esc(cpu)}%
+                    </div>
+
+                    <div class="process-manager-mem">
+                        ${esc(mem)}%
+                    </div>
+
+                    <div class="process-manager-state">
+                        ${esc(process.state || "—")}
+                    </div>
+
+                    <div class="process-manager-user">
+                        ${esc(process.user || "—")}
+                    </div>
+
+                    <div class="process-manager-action">
+
+                        <button
+                            type="button"
+                            class="process-manager-kill"
+                            onclick="showKillProcessConfirm(${esc(process.pid)})">
+                            <span class="process-manager-kill-icon">✖</span>
+                            KILL
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+
+    list.innerHTML = `
+
+        <div class="process-manager-table">
+
+            <div class="process-manager-header">
+
+                <button
+                    type="button"
+                    class="process-manager-sort"
+                    onclick="sortProcessManager('pid')">
+                    PID
+                    <span>${pidArrow}</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="process-manager-sort"
+                    onclick="sortProcessManager('process')">
+                    PROCESS
+                    <span>${processArrow}</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="process-manager-sort"
+                    onclick="sortProcessManager('cpu')">
+                    CPU %
+                    <span>${cpuArrow}</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="process-manager-sort"
+                    onclick="sortProcessManager('mem')">
+                    MEM %
+                    <span>${memArrow}</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="process-manager-sort"
+                    onclick="sortProcessManager('state')">
+                    STATE
+                    <span>${stateArrow}</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="process-manager-sort"
+                    onclick="sortProcessManager('user')">
+                    USER
+                    <span>${userArrow}</span>
+                </button>
+
+                <div>ACTION</div>
+
+            </div>
+
+            ${rows}
+
+        </div>
+    `;
+}
+
+
+function sortProcessManager(field){
+
+    const allowedFields = [
+        "pid",
+        "process",
+        "cpu",
+        "mem",
+        "state",
+        "user"
+    ];
+
+    if(!allowedFields.includes(field)){
+        return;
+    }
+
+    if(!window.__processManagerSort){
+
+        window.__processManagerSort = {
+            field: "cpu",
+            direction: "desc"
+        };
+
+    }
+
+    const sortState =
+        window.__processManagerSort;
+
+    if(sortState.field === field){
+
+        sortState.direction =
+            sortState.direction === "desc"
+                ? "asc"
+                : "desc";
+
+    }else{
+
+        sortState.field = field;
+
+        sortState.direction =
+            field === "pid"
+                ? "asc"
+                : "desc";
+    }
+
+    refreshProcessManager();
+}
+
+function showSystemLogs(){
+
+    let modal = document.getElementById("systemLogsModal");
+
+    if(!modal){
+
+        modal = document.createElement("div");
+
+        modal.id = "systemLogsModal";
+        modal.className = "disk-details-modal";
+
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div class="disk-details-backdrop"
+             onclick="closeSystemLogs()"></div>
+
+        <div class="disk-details-panel">
+
+            <div class="disk-details-head">
+
+                <div>
+                    <div class="disk-details-title">
+                        SYSTEM LOGS
+                    </div>
+
+                    <div class="small">
+                        System events and diagnostic messages
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    class="disk-details-close"
+                    onclick="closeSystemLogs()">
+                    ×
+                </button>
+
+            </div>
+
+            <div id="systemLogsList"
+                 class="system-logs-list">
+
+                <div class="small">
+                    Loading system logs...
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+    modal.classList.add("visible");
+
+    document.body.style.overflow = "hidden";
+
+    refreshSystemLogs();
+
+    if(!window.__systemLogsEscapeHandler){
+
+        window.__systemLogsEscapeHandler = function(event){
+
+            if(event.key === "Escape"){
+
+                const currentModal =
+                    document.getElementById("systemLogsModal");
+
+                if(
+                    currentModal &&
+                    currentModal.classList.contains("visible")
+                ){
+                    closeSystemLogs();
+                }
+            }
+        };
+
+        document.addEventListener(
+            "keydown",
+            window.__systemLogsEscapeHandler
+        );
+    }
+}
+
+
+function closeSystemLogs(){
+
+    const modal =
+        document.getElementById("systemLogsModal");
+
+    if(modal){
+        modal.classList.remove("visible");
+    }
+
+    document.body.style.overflow = "";
+}
+
+
+function refreshSystemLogs(){
+
+    const list =
+        document.getElementById("systemLogsList");
+
+    if(!list){
+        return;
+    }
+
+    const logs =
+        Array.isArray(window.__nasLogs)
+            ? window.__nasLogs
+            : [];
+
+    const groups = {
+        "SERVERS": [],
+        "KERNEL": [],
+        "SYSTEM / OTHER": []
+    };
+
+    logs.slice().reverse().forEach(line => {
+
+        const text = String(line || "");
+
+        let level = "INFO";
+        let levelClass = "log-info";
+
+        if(/daemon\.err|kern\.err|\berror\b|\bfailed\b|\bfail\b/i.test(text)){
+
+            level = "ERROR";
+            levelClass = "log-error";
+
+        }else if(/daemon\.warn|kern\.warn|\bwarning\b|\bwarn\b/i.test(text)){
+
+            level = "WARNING";
+            levelClass = "log-warning";
+
+        }else if(/daemon\.notice|kern\.notice|\bnotice\b/i.test(text)){
+
+            level = "NOTICE";
+            levelClass = "log-notice";
+
+        }else if(/daemon\.info|kern\.info|\binfo\b/i.test(text)){
+
+            level = "INFO";
+            levelClass = "log-info";
+        }
+
+        const match =
+            text.match(/^(.+?\s\d{2}:\d{2}:\d{2})\s+([^:]+):\s*(.*)$/);
+
+        let time = "";
+        let message = text;
+        let source = "system";
+
+        if(match){
+
+            time = match[1];
+
+            const prefix =
+                match[2].trim();
+
+            message =
+                match[3].trim();
+
+            const parts =
+                prefix.split(/\s+/);
+
+            if(parts.length >= 2){
+                source =
+                    parts[parts.length - 1];
+            }
+        }
+
+        const sourceLower =
+            source.toLowerCase();
+
+        let group = "SYSTEM / OTHER";
+
+        if(
+            sourceLower.includes("ksmbd") ||
+            sourceLower.includes("smb") ||
+            sourceLower.includes("dropbear") ||
+            sourceLower.includes("ssh") ||
+            sourceLower.includes("vsftpd") ||
+            sourceLower.includes("ftp") ||
+            sourceLower.includes("uhttpd") ||
+            sourceLower.includes("http")
+        ){
+
+            group = "SERVERS";
+
+        }else if(
+            sourceLower === "kernel" ||
+            sourceLower === "kern" ||
+            sourceLower.includes("kernel") ||
+            sourceLower.includes("kern")
+        ){
+
+            group = "KERNEL";
+        }
+
+        groups[group].push({
+            time,
+            source,
+            message,
+            level,
+            levelClass
+        });
+
+    });
+
+    const order = [
+        "SERVERS",
+        "KERNEL",
+        "SYSTEM / OTHER"
+    ];
+
+    /*
+     * Preserve selected tab
+     */
+    if(
+        !window.__systemLogsActiveTab ||
+        !order.includes(window.__systemLogsActiveTab)
+    ){
+        window.__systemLogsActiveTab = "SERVERS";
+    }
+
+    /*
+     * If selected tab is empty,
+     * automatically select first available section
+     */
+    if(!groups[window.__systemLogsActiveTab].length){
+
+        const firstAvailable =
+            order.find(group => groups[group].length);
+
+        if(firstAvailable){
+            window.__systemLogsActiveTab = firstAvailable;
+        }
+    }
+
+    const tabs =
+        order.map(group => {
+
+            const active =
+                window.__systemLogsActiveTab === group
+                    ? "active"
+                    : "";
+
+            return `
+                <button
+                    type="button"
+                    class="system-log-tab ${active}"
+                    onclick="selectSystemLogTab('${group}')">
+
+                    <span class="system-log-tab-name">
+                        ${esc(group)}
+                    </span>
+
+                    <span class="system-log-tab-count">
+                        ${groups[group].length}
+                    </span>
+
+                </button>
+            `;
+
+        }).join("");
+
+    const activeGroup =
+        window.__systemLogsActiveTab;
+
+    const items =
+        groups[activeGroup] || [];
+
+    let rows = "";
+
+    if(!items.length){
+
+        rows = `
+            <div class="system-logs-empty">
+                No logs available in this section.
+            </div>
+        `;
+
+    }else{
+
+        rows =
+            items.map(item => {
+
+                return `
+                    <div class="system-log-row ${item.levelClass}">
+
+                        <div class="system-log-time">
+                            ${esc(item.time || "—")}
+                        </div>
+
+                        <div class="system-log-content">
+
+                            <span class="system-log-source">
+                                ${esc(item.source)} :
+                            </span>
+
+                            <span class="system-log-message">
+                                ${esc(item.message)}
+                            </span>
+
+                        </div>
+
+                    </div>
+                `;
+
+            }).join("");
+    }
+
+    list.innerHTML = `
+
+        <div class="system-log-tabs">
+            ${tabs}
+        </div>
+
+        <div class="system-log-tab-content">
+
+            <div class="system-log-table">
+                ${rows}
+            </div>
+
+        </div>
+
+    `;
+}
+
+
+function selectSystemLogTab(group){
+
+    const allowed = [
+        "SERVERS",
+        "KERNEL",
+        "SYSTEM / OTHER"
+    ];
+
+    if(!allowed.includes(group)){
+        return;
+    }
+
+    window.__systemLogsActiveTab = group;
+
+    refreshSystemLogs();
+}
+
+
+
+async function toggleServer(service, action, label){
+
+    const button =
+        document.querySelector(
+            'button[data-service="' +
+            CSS.escape(service) +
+            '"]'
+        );
+
+    if(button){
+
+        button.disabled = true;
+        button.style.opacity = "0.6";
+
+    }
+
+    try{
+
+        await fetch(
+            API +
+            "?action=" + encodeURIComponent(action) +
+            "&service=" + encodeURIComponent(service) +
+            "&t=" + Date.now(),
+            {
+                method:"GET",
+                cache:"no-store",
+                headers:{
+                    "Cache-Control":"no-cache",
+                    "Pragma":"no-cache"
+                }
+            }
+        );
+
+    }catch(error){
+
+        console.error(
+            "Service control request:",
+            service,
+            action,
+            error
+        );
+
+    }
+
+    /*
+     * Give init.d enough time to start/stop,
+     * then refresh the displayed state.
+     */
+    await new Promise(resolve =>
+        setTimeout(resolve,1000)
+    );
+
+    try{
+
+        await loadData(true);
+
+    }catch(error){
+
+        console.error(
+            "Service state refresh:",
+            error
+        );
+
+    }
+
+}
+
+
+function renderSpindownDisks(disks){
+
+    const container =
+        document.getElementById("spindownDisks");
+
+    if(!container)
+        return;
+
+    if(!disks || !disks.length){
+
+        container.innerHTML =
+            '<div class="server-meta">No disks detected.</div>';
+
+        return;
+    }
+
+    container.innerHTML = disks.map(d => {
+
+        const state =
+            String(d.state || "UNKNOWN").toUpperCase();
+
+        let stateColor = "#999";
+
+        if(state === "ACTIVE"){
+            stateColor = "#00c853";
+        }
+        else if(state === "STANDBY"){
+            stateColor = "#ff9800";
+        }
+
+        return `
+        <div style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            padding:11px 0;
+            border-bottom:1px solid rgba(255,255,255,.08);
+        ">
+
+            <div style="min-width:0;">
+
+                <div style="
+                    font-weight:700;
+                    font-size:14px;
+                ">
+                    ${esc(d.label)}
+                </div>
+
+                <div style="
+                    font-size:12px;
+                    opacity:.65;
+                    margin-top:3px;
+                ">
+                    ${esc(d.device)} · ${esc(d.type)}
+                </div>
+
+                <div style="
+                    font-size:11px;
+                    opacity:.55;
+                    margin-top:2px;
+                ">
+                    Spindown: ${esc(d.timer)}
+                </div>
+
+            </div>
+
+            <div style="
+                font-weight:800;
+                font-size:13px;
+                color:${stateColor};
+                white-space:nowrap;
+            ">
+                ${esc(state)}
+            </div>
+
+        </div>
+        `;
+
+    }).join("");
+}
+
+
+function renderSecurityCenter(servers, connections){
+
+    const grid = document.getElementById("securityCenter");
+
+    if(!grid)
+        return;
+
+    if(!servers || !servers.length){
+        grid.innerHTML =
+            '<div class="card">' +
+            '<div class="card-title">SECURITY STATUS</div>' +
+            '<div class="small">No server services detected.</div>' +
+            '</div>';
+        return;
+    }
+
+    let runningCount = 0;
+    let stoppedCount = 0;
+    const cards = servers.map(s => {
+
+        const name =
+            String(s.name || "").toLowerCase();
+
+        const label =
+            String(s.label || s.name || "");
+
+        const state =
+            String(s.state || "UNKNOWN").toUpperCase();
+
+        const port =
+            String(s.port || "");
+
+        const running =
+            state === "RUNNING";
+
+        if(running){
+            runningCount++;
+        }else{
+            stoppedCount++;
+        }
+
+        const statusClass =
+            badgeClass(state);
+
+        const action =
+            running ? "stop" : "start";
+
+        const buttonText =
+            running ? "STOP" : "START";
+
+        const buttonClass =
+            running ? "server-stop" : "server-start";
+
+        return `
+        <div class="card">
+
+            <div class="card-head">
+
+                <div class="card-title">
+                    ${esc(label)}
+                </div>
+
+                <span class="${statusClass}">
+                    ${esc(state)}
+                </span>
+
+            </div>
+
+            <div class="metric">
+                <span class="label">Service</span>
+                <span class="value">${esc(s.name)}</span>
+            </div>
+
+            <div class="metric">
+                <span class="label">Port</span>
+                <span class="value">
+                    ${port ? esc(port) : "—"}
+                </span>
+            </div>
+
+            <div class="small" style="margin-top:10px">
+                ${running
+                    ? "Service is active."
+                    : "Service is not running."
+                }
+            </div>
+
+            <div style="margin-top:14px;">
+                <button
+                    type="button"
+                    class="${buttonClass}"
+                    data-service="${esc(s.name)}"
+                    data-action="${action}"
+                    data-label="${esc(label)}">
+                    ${buttonText}
+                </button>
+            </div>
+
+        </div>
+        `;
+    }).join("");
+
+    let overallClass = "health-excellent";
+    let overallStatus = "SECURE";
+
+    if(stoppedCount > 0){
+        overallClass = "health-warning";
+        overallStatus = "CHECK SERVICES";
+    }
+
+    grid.innerHTML = `
+
+        <div class="card">
+
+            <div class="card-head">
+                <div class="card-title">
+                    SECURITY STATUS
+                </div>
+
+                <span class="${overallClass}">
+                    ${overallStatus}
+                </span>
+            </div>
+
+            <div class="metric">
+                <span class="label">Running Services</span>
+                <span class="value">${runningCount}</span>
+            </div>
+
+            <div class="metric">
+                <span class="label">Stopped Services</span>
+                <span class="value">${stoppedCount}</span>
+            </div>
+
+            <div class="metric">
+                <span class="label">Established</span>
+                <span class="value">
+                    ${Number(connections && connections.established || 0)}
+                </span>
+            </div>
+
+            <div class="metric">
+                <span class="label">Listening</span>
+                <span class="value">
+                    ${Number(connections && connections.listening || 0)}
+                </span>
+            </div>
+
+
+
+        </div>
+
+        ${cards}
+
+    `;
+
+    grid.querySelectorAll("button[data-service]").forEach(button => {
+
+        button.addEventListener("click", function(event){
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            toggleServer(
+                this.dataset.service,
+                this.dataset.action,
+                this.dataset.label
+            );
+
+            return false;
+
+        });
+
+    });
+}
+
+function renderPorts(ports){
+
+    const grid = document.getElementById("portGrid");
+
+    if(!ports || !ports.length){
+        grid.innerHTML =
+            '<div class="card">No listening ports detected.</div>';
+        return;
+    }
+
+    grid.innerHTML = `
+        <div class="card listening-ports-card">
+            <div class="listening-ports-items">
+                ${ports.map(p => `
+                    <div class="listening-port-item">
+                        <div class="listening-port-protocol">
+                            TCP/UDP
+                        </div>
+
+                        <span class="badge good">
+                            LISTENING
+                        </span>
+
+                        <div class="listening-port-number">
+                            <span>Port</span>
+                            <strong>${esc(p.port)}</strong>
+                        </div>
+                    </div>
+                `).join("")}
+            </div>
+        </div>
+    `;
+}
+
+function updateSystem(data){
+
+    const s = data && data.system ? data.system : {};
+    const load = data && data.load ? data.load : {};
+
+    function setText(id, value){
+        const el = document.getElementById(id);
+        if(el){
+            el.textContent = value;
+        }
+    }
+
+    function setWidth(id, value){
+        const el = document.getElementById(id);
+        if(el){
+            el.style.width = value;
+        }
+    }
+
+    setText("hostname", s.hostname || "—");
+    setText("model", s.model || "—");
+    setText("kernel", s.kernel || "—");
+    setText("ip", s.ip || "—");
+    setText("uptime", formatUptime(s.uptime));
+
+    setText("memoryTotal", formatBytesKB(s.mem_total));
+    setText("memoryUsed", formatBytesKB(s.mem_used));
+
+    const total = Number(s.mem_total || 0);
+    const used = Number(s.mem_used || 0);
+
+    let percent = 0;
+
+    if(total > 0){
+        percent = Math.round((used / total) * 100);
+    }
+
+    setText("memoryPercent", percent + "%");
+    setWidth("memoryBar", percent + "%");
+
+    setText("load1", load.load1 ?? "—");
+    setText("load5", load.load5 ?? "—");
+    setText("load15", load.load15 ?? "—");
+}
+
+function updateNASDashboard(data){
+
+    const system  = data.system || {};
+    const load    = data.load || {};
+    const network = data.network || {};
+    const disks   = Array.isArray(data.disks) ? data.disks : [];
+    const servers = Array.isArray(data.servers) ? data.servers : [];
+    const ports   = Array.isArray(data.ports) ? data.ports : [];
+
+    /* =========================================================
+       HELPERS
+       ========================================================= */
+
+    function setText(id, value){
+        const el = document.getElementById(id);
+        if(el) el.textContent = value;
+    }
+
+    function setBadge(id, text, type){
+        const el = document.getElementById(id);
+        if(!el) return;
+
+        el.textContent = text;
+        el.className = "badge " + type;
+    }
+
+    function formatBytes(bytes){
+        bytes = Number(bytes || 0);
+
+        if(bytes < 1024)
+            return bytes + " B";
+
+        if(bytes < 1024 * 1024)
+            return (bytes / 1024).toFixed(1) + " KB";
+
+        if(bytes < 1024 * 1024 * 1024)
+            return (bytes / 1024 / 1024).toFixed(1) + " MB";
+
+        return (bytes / 1024 / 1024 / 1024).toFixed(2) + " GB";
+    }
+
+    function formatKB(kb){
+        return formatBytes(Number(kb || 0) * 1024);
+    }
+
+    /* =========================================================
+       SYSTEM OVERVIEW
+       ========================================================= */
+
+    setText("dashHostname", system.hostname || "—");
+    setText("dashModel", system.model || "—");
+    setText("dashKernel", system.kernel || "—");
+    setText("dashIP", system.ip || "—");
+
+    /* MAC ADDRESS */
+    const dashMAC = document.getElementById("dashMAC");
+    if(dashMAC){
+        const networkMAC = String(
+            (window.__nasNetworkCenter || {}).mac || "—"
+        ).replace(/\\/g, "");
+        dashMAC.textContent = networkMAC;
+    }
+
+    /* IP ADDRESS NETWORK MODE */
+    const ipModeBadge = document.getElementById("dashIPMode");
+    const ipModeText = document.getElementById("dashIPModeText");
+
+    if(ipModeBadge && ipModeText){
+
+        const networkMode =
+            String(
+                (window.__nasNetworkCenter || {}).mode || "static"
+            ).toLowerCase();
+
+        if(networkMode === "dhcp"){
+            ipModeText.textContent = "DHCP";
+            ipModeBadge.classList.remove("manual");
+            ipModeBadge.classList.add("dhcp");
+        }else{
+            ipModeText.textContent = "MANUAL";
+            ipModeBadge.classList.remove("dhcp");
+            ipModeBadge.classList.add("manual");
+        }
+    }
+
+    if(typeof formatUptime === "function"){
+        setText("dashUptime", formatUptime(system.uptime || 0));
+    }else{
+        setText("dashUptime", String(system.uptime || 0) + " sec");
+    }
+
+    setText("dashStatusValue", "ONLINE");
+    setBadge("systemStatus", "ONLINE", "good");
+
+    /* =========================================================
+       CPU LOAD
+       ========================================================= */
+
+    const load1  = Number(load.load1 || 0);
+    const load5  = Number(load.load5 || 0);
+    const load15 = Number(load.load15 || 0);
+
+    setText("dashCpuValue", load1.toFixed(2));
+    setText("dashLoad1", load1.toFixed(2));
+    setText("dashLoad5", load5.toFixed(2));
+    setText("dashLoad15", load15.toFixed(2));
+
+    /* =========================================================
+       CPU PRESSURE BAR
+       Based on 1-minute system load
+       ========================================================= */
+
+    const cpuPressureBar =
+        document.getElementById("dashCpuPressureBar");
+
+    const cpuPressurePercent =
+        document.getElementById("dashCpuPressurePercent");
+
+    /*
+       Visual scale:
+       0.00 load  = 0%
+       1.00 load  = 25%
+       2.00 load  = 50%
+       3.00 load  = 75%
+       4.00+ load = 100%
+    */
+
+    const cpuPressure =
+        Math.min(100, Math.max(0, (load1 / 4) * 100));
+
+    if(cpuPressureBar){
+        cpuPressureBar.style.width =
+            cpuPressure.toFixed(0) + "%";
+    }
+
+    if(cpuPressurePercent){
+        cpuPressurePercent.textContent =
+            cpuPressure.toFixed(0) + "%";
+    }
+
+    if(load1 < 1){
+        setBadge("dashCpu", "LOW", "good");
+    }else if(load1 < 3){
+        setBadge("dashCpu", "NORMAL", "good");
+    }else if(load1 < 6){
+        setBadge("dashCpu", "HIGH", "warn");
+    }else{
+        setBadge("dashCpu", "CRITICAL", "bad");
+    }
+
+    /* =========================================================
+       PROCESS MANAGER BUTTON COLOR
+       Follows CPU LOAD status
+       ========================================================= */
+
+    const processButton =
+        document.getElementById("processManagerButton");
+
+    if(processButton){
+
+        processButton.classList.remove(
+            "process-low",
+            "process-normal",
+            "process-high",
+            "process-critical"
+        );
+
+        if(load1 < 1){
+
+            processButton.classList.add("process-low");
+
+        }else if(load1 < 3){
+
+            processButton.classList.add("process-normal");
+
+        }else if(load1 < 6){
+
+            processButton.classList.add("process-high");
+
+        }else{
+
+            processButton.classList.add("process-critical");
+        }
+    }
+
+    /* =========================================================
+       RAM
+       ========================================================= */
+
+    const memTotal = Number(system.mem_total || 0);
+    const memUsed  = Number(system.mem_used || 0);
+    const memFree  = Math.max(0, memTotal - memUsed);
+
+    const ramPercent = memTotal > 0
+        ? Math.round((memUsed / memTotal) * 100)
+        : 0;
+
+    setText("dashRamValue", ramPercent + "%");
+    setText("dashRamUsed", formatKB(memUsed));
+    setText("dashRamFree", formatKB(memFree));
+    setText("dashRamTotal", formatKB(memTotal));
+
+    const ramBar = document.getElementById("dashRamBar");
+    if(ramBar){
+        ramBar.style.width = Math.min(100, ramPercent) + "%";
+    }
+
+    if(ramPercent < 70){
+        setBadge("dashRam", "GOOD", "good");
+    }else if(ramPercent < 85){
+        setBadge("dashRam", "WARNING", "warn");
+    }else{
+        setBadge("dashRam", "CRITICAL", "bad");
+    }
+
+    /* =========================================================
+       STORAGE
+       ========================================================= */
+
+    let totalKB = 0;
+    let usedKB  = 0;
+    let freeKB  = 0;
+
+    disks.forEach(function(disk){
+        totalKB += Number(disk.size_kb || 0);
+        usedKB  += Number(disk.used_kb || 0);
+        freeKB  += Number(disk.avail_kb || 0);
+    });
+
+    const storagePercent = totalKB > 0
+        ? Math.round((usedKB / totalKB) * 100)
+        : 0;
+
+    setText("dashStorageValue", storagePercent + "%");
+    setText("dashStorageUsed", formatKB(usedKB));
+    setText("dashStorageFree", formatKB(freeKB));
+    setText("dashStorageTotal", formatKB(totalKB));
+
+    const storageBar = document.getElementById("dashStorageBar");
+    if(storageBar){
+        storageBar.style.width =
+            Math.min(100, storagePercent) + "%";
+    }
+
+    if(storagePercent < 70){
+        setBadge("dashStorage", "HEALTHY", "good");
+    }else if(storagePercent < 85){
+        setBadge("dashStorage", "WARNING", "warn");
+    }else if(storagePercent < 95){
+        setBadge("dashStorage", "CRITICAL", "bad");
+    }else{
+        setBadge("dashStorage", "FULL", "bad");
+    }
+
+    /* =========================================================
+       NETWORK
+       ========================================================= */
+
+    const link  = String(network.link || "").toUpperCase();
+    const speed = Number(network.speed_mbps || 0);
+
+    setText(
+        "dashNetworkValue",
+        speed > 0 ? speed + " Mbps" : "—"
+    );
+
+    setText("dashInterface", network.interface || "—");
+
+    setText(
+        "dashRX",
+        formatBytes(network.rx_bytes || 0)
+    );
+
+    setText(
+        "dashTX",
+        formatBytes(network.tx_bytes || 0)
+    );
+
+    const rxErrors = Number(network.rx_errors || 0);
+    const txErrors = Number(network.tx_errors || 0);
+    const rxDrop   = Number(network.rx_drop || 0);
+    const txDrop   = Number(network.tx_drop || 0);
+
+    const networkErrors =
+        rxErrors + txErrors + rxDrop + txDrop;
+
+    setText("dashNetworkErrors", networkErrors);
+
+    if(link === "UP"){
+        setBadge("dashNetwork", "ONLINE", "good");
+    }else{
+        setBadge("dashNetwork", "OFFLINE", "bad");
+    }
+
+}
+
+function formatBytes(bytes){
+
+    bytes = Number(bytes || 0);
+
+    if(bytes < 1024)
+        return bytes + " B";
+
+    if(bytes < 1024 * 1024)
+        return (bytes / 1024).toFixed(1) + " KB";
+
+    if(bytes < 1024 * 1024 * 1024)
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+
+    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
+}
+
+
+
+
+
+async function rebootNAS(){
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to REBOOT the NAS?\n\n" +
+            "All active operations may be interrupted."
+        );
+
+    if(!confirmed){
+        return;
+    }
+
+    try{
+
+        await fetch(
+            "/cgi-bin/nas-reboot?t=" + Date.now(),
+            {
+                method:"GET",
+                cache:"no-store",
+                headers:{
+                    "Cache-Control":"no-cache",
+                    "Pragma":"no-cache"
+                }
+            }
+        );
+
+        alert("NAS is rebooting...");
+
+    }catch(error){
+
+        console.error("NAS reboot request:", error);
+        alert("Reboot request could not be sent.");
+    }
+}
+
+
+async function shutdownNAS(){
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to SHUT DOWN the NAS?\n\n" +
+            "The NAS will power off completely."
+        );
+
+    if(!confirmed){
+        return;
+    }
+
+    try{
+
+        await fetch(
+            "/cgi-bin/nas-shutdown?t=" + Date.now(),
+            {
+                method:"GET",
+                cache:"no-store",
+                headers:{
+                    "Cache-Control":"no-cache",
+                    "Pragma":"no-cache"
+                }
+            }
+        );
+
+        alert("NAS is shutting down...");
+
+    }catch(error){
+
+        console.error("NAS shutdown request:", error);
+        alert("Shutdown request could not be sent.");
+    }
+}
+
+
+async function loadData(manual=false){
+
+    const isFirstLoad = !window.__nasInitialLoaded;
+
+    try{
+
+        if(isFirstLoad || manual){
+            document.body.classList.add("loading");
+        }
+
+        const response = await fetch(
+            API + "?t=" + Date.now(),
+            {
+                cache:"no-store"
+            }
+        );
+
+        if(!response.ok)
+            throw new Error("HTTP " + response.status);
+
+        const data = await response.json();
+
+window.__nasNetworkCenter = data.network_center || {};
+
+        window.__nasDisks = data.disks || [];
+        window.__nasLogs = data.logs || [];
+        window.__nasProcesses = data.processes || [];
+
+        updateSystem(data);
+        updateNASDashboard(data);
+        renderStorageOverview(data.disks);
+        renderDisks(data.disks);
+
+        /*
+         * Disk Details remains static while open.
+         * The main dashboard continues to refresh normally.
+         */
+
+        renderSecurityCenter(data.servers, data.connections);
+        
+        renderSpindownDisks(data.spindown_disks);
+            renderPorts(data.ports);
+
+        const lastUpdateEl = document.getElementById("lastUpdate");
+        if(lastUpdateEl){
+            lastUpdateEl.textContent =
+                new Date().toLocaleTimeString();
+        }
+
+        const systemStatusEl = document.getElementById("systemStatus");
+        if(systemStatusEl){
+            systemStatusEl.textContent = "ONLINE";
+            systemStatusEl.className = "badge good";
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        const systemStatusErrorEl =
+            document.getElementById("systemStatus");
+
+        if(systemStatusErrorEl){
+            systemStatusErrorEl.textContent = "ERROR";
+            systemStatusErrorEl.className = "badge bad";
+        }
+
+    }finally{
+
+        if(isFirstLoad || manual){
+            document.body.classList.remove("loading");
+        }
+
+        window.__nasInitialLoaded = true;
+    }
+}
+
+loadData();
+
+setInterval(
+    () => loadData(false),
+    5000
+);
+
+
+/* ===================================================== */
+/* LAN CONFIGURATION MODAL */
+/* ===================================================== */
+
+function setNetworkModalMode(mode){
+
+    const isDHCP = String(mode || "").toLowerCase() === "dhcp";
+
+    const fields = [
+        "networkModalIP",
+        "networkModalNetmask",
+        "networkModalGateway",
+        "networkModalDNS"
+    ];
+
+    fields.forEach(id => {
+
+        const el = document.getElementById(id);
+
+        if(el){
+            el.disabled = isDHCP;
+        }
+
+    });
+
+    const radios = document.querySelectorAll(
+        'input[name="networkModalMode"]'
+    );
+
+    radios.forEach(radio => {
+
+        radio.checked =
+            String(radio.value).toLowerCase() ===
+            (isDHCP ? "dhcp" : "static");
+
+    });
+
+}
+
+
+function openNetworkConfiguration(){
+
+    const modal = document.getElementById("networkConfigModal");
+
+    if(!modal){
+        console.error("LAN configuration modal not found");
+        return;
+    }
+
+    const data = window.__nasNetworkCenter || {};
+    const mode = String(data.mode || "static").toLowerCase();
+
+    /*
+     * Keep the last values entered/shown by the user.
+     * This allows switching DHCP -> MANUAL without losing
+     * the IP configuration fields.
+     */
+    const saved = window.__nasManualNetworkValues || {};
+
+    const values = {
+        networkModalIP:
+            data.ip || saved.ip || "",
+
+        networkModalNetmask:
+            data.netmask || saved.netmask || "",
+
+        networkModalGateway:
+            data.gateway || saved.gateway || "",
+
+        networkModalDNS:
+            data.dns || saved.dns || ""
+    };
+
+    Object.keys(values).forEach(id => {
+
+        const el = document.getElementById(id);
+
+        if(el){
+            el.value = values[id];
+        }
+
+    });
+
+    /*
+     * Remember the values currently displayed.
+     */
+    window.__nasManualNetworkValues = {
+        ip: values.networkModalIP,
+        netmask: values.networkModalNetmask,
+        gateway: values.networkModalGateway,
+        dns: values.networkModalDNS
+    };
+
+    setNetworkModalMode(mode);
+
+    const message = document.getElementById("networkModalMessage");
+
+    if(message){
+        message.textContent = "";
+        message.className = "network-apply-message";
+    }
+
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+
+    document.body.classList.add("network-config-modal-open");
+
+}
+
+
+function closeNetworkConfiguration(){
+
+    const modal = document.getElementById("networkConfigModal");
+
+    if(!modal){
+        return;
+    }
+
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+
+    document.body.classList.remove("network-config-modal-open");
+
+}
+
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const radios = document.querySelectorAll(
+        'input[name="networkModalMode"]'
+    );
+
+    radios.forEach(radio => {
+
+        radio.addEventListener("change", function(){
+
+            setNetworkModalMode(this.value);
+
+        });
+
+    });
+
+});
+
+</script>
+
+
+<script>
+async function testNetworkApplyButton(){
+
+    const message =
+        document.getElementById("networkModalMessage");
+
+    const button =
+        document.getElementById("networkModalApplyBtn");
+
+    const currentNetwork = window.__nasNetworkCenter || {};
+
+    const currentMode =
+        String(currentNetwork.mode || "static").toLowerCase();
+
+    const selectedMode =
+        document.querySelector(
+            'input[name="networkModalMode"]:checked'
+        );
+
+    const newMode =
+        selectedMode
+            ? String(selectedMode.value || "static").toLowerCase()
+            : "static";
+
+    const newIP =
+        document.getElementById("networkModalIP").value.trim();
+
+    const newNetmask =
+        document.getElementById("networkModalNetmask").value.trim();
+
+    const newGateway =
+        document.getElementById("networkModalGateway").value.trim();
+
+    const newDNS =
+        document.getElementById("networkModalDNS").value.trim();
+
+    const oldIP =
+        String(currentNetwork.ip || "").trim();
+
+    const oldNetmask =
+        String(currentNetwork.netmask || "").trim();
+
+    const oldGateway =
+        String(currentNetwork.gateway || "").trim();
+
+    const oldDNS =
+        String(currentNetwork.dns || "").trim();
+
+    const networkUnchanged =
+        newMode === currentMode &&
+        newIP === oldIP &&
+        newNetmask === oldNetmask &&
+        newGateway === oldGateway &&
+        newDNS === oldDNS;
+
+    if(networkUnchanged){
+
+        if(button){
+            button.disabled = false;
+        }
+
+        return;
+    }
+
+    if(message){
+        message.textContent = "APPLYING NETWORK CONFIGURATION...";
+        message.className = "network-apply-message success";
+    }
+
+    if(button){
+        button.disabled = true;
+    }
+
+    /*
+     * Allow the APPLYING message to render
+     * before the network reload can disconnect
+     * the browser session.
+     */
+    await new Promise(function(resolve){
+        setTimeout(resolve, 1000);
+    });
+
+    try{
+
+        const params = new URLSearchParams();
+
+        params.set("action", "network_apply");
+        params.set("mode", newMode);
+
+        params.set(
+            "ip",
+            document.getElementById("networkModalIP").value.trim()
+        );
+
+        params.set(
+            "netmask",
+            document.getElementById("networkModalNetmask").value.trim()
+        );
+
+        params.set(
+            "gateway",
+            document.getElementById("networkModalGateway").value.trim()
+        );
+
+        params.set(
+            "dns",
+            document.getElementById("networkModalDNS").value.trim()
+        );
+
+        const response = await fetch(
+            API + "?" + params.toString(),
+            {
+                method: "GET",
+                cache: "no-store"
+            }
+        );
+
+        const text = await response.text();
+
+        let result;
+
+        try{
+            result = JSON.parse(text);
+        }catch(e){
+            result = {
+                success: false,
+                error: "Invalid server response: " + text
+            };
+        }
+
+        if(result.success){
+
+            if(message){
+
+                message.textContent =
+                    "NETWORK CONFIGURATION APPLIED";
+
+                message.className =
+                    "network-apply-message success";
+
+            }
+
+            /*
+             * Do NOT call loadData() here.
+             * Network reload may temporarily disconnect
+             * the current browser session.
+             */
+
+            if(button){
+                button.disabled = false;
+            }
+
+            return;
+        }
+
+        if(message){
+
+            message.textContent =
+                "ERROR: " + (result.error || "Network configuration failed");
+
+            message.className =
+                "network-apply-message error";
+
+        }
+
+        if(button){
+            button.disabled = false;
+        }
+
+    }catch(error){
+
+        if(message){
+
+            message.textContent =
+                "CGI ERROR: " + error.message;
+
+            message.className =
+                "network-apply-message error";
+
+        }
+
+        console.error(
+            "NETWORK APPLY ERROR:",
+            error
+        );
+
+        if(button){
+            button.disabled = false;
+        }
+
+    }
+
+}
+</script>
+</body>
+</html>
