@@ -478,6 +478,57 @@ body{
     text-overflow:ellipsis;
 }
 
+.overview-ip-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    width:100%;
+}
+
+.overview-ip-row strong{
+    min-width:0;
+    flex:1 1 auto;
+}
+
+ .overview-ip-edit-btn{
+    flex:0 0 auto !important;
+    height:21px !important;
+    min-width:74px !important;
+    padding:3px 12px !important;
+    margin:2px 0 !important;
+
+    border:0 !important;
+    border-radius:999px !important;
+
+    background:rgba(255,165,0,.10) !important;
+    color:#ffb347 !important;
+
+    font-size:9px !important;
+    font-weight:800 !important;
+    letter-spacing:.5px !important;
+    line-height:13px !important;
+
+    box-shadow:none !important;
+    outline:none !important;
+
+    cursor:pointer;
+    transition:
+        background .2s ease,
+        color .2s ease,
+        transform .15s ease;
+}
+
+.overview-ip-edit-btn:hover{
+    background:rgba(118,199,255,.15);
+    border-color:rgba(118,199,255,.55);
+    box-shadow:0 0 10px rgba(118,199,255,.12);
+}
+
+.overview-ip-edit-btn:active{
+    transform:scale(.96);
+}
+
 .dashboard-main-grid{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -2214,7 +2265,7 @@ body.network-config-modal-open{
 
 .disk-details-grid{
     display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-columns:repeat(4,minmax(0,1fr));
     gap:9px;
 }
 
@@ -2365,7 +2416,7 @@ body.network-config-modal-open{
 
 .disk-storage-grid{
     display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-columns:repeat(4,minmax(0,1fr));
     gap:10px;
     margin-top:14px;
 }
@@ -2618,6 +2669,28 @@ body.network-config-modal-open{
     border-color:rgba(255,68,68,.50);
     box-shadow:0 0 12px rgba(255,68,68,.12);
 }
+
+/* ===== IP EDIT DYNAMIC COLORS ===== */
+.overview-ip-edit-btn.ip-edit-manual{
+    background:rgba(118,199,255,.10) !important;
+    color:#76c7ff !important;
+}
+
+.overview-ip-edit-btn.ip-edit-manual:hover{
+    background:rgba(118,199,255,.18) !important;
+    color:#9bd8ff !important;
+}
+
+.overview-ip-edit-btn.ip-edit-dhcp{
+    background:rgba(0,255,136,.10) !important;
+    color:#00ff88 !important;
+}
+
+.overview-ip-edit-btn.ip-edit-dhcp:hover{
+    background:rgba(0,255,136,.18) !important;
+    color:#4dffad !important;
+}
+
 </style>
 
 </head>
@@ -2685,7 +2758,15 @@ body.network-config-modal-open{
                         <span id="dashIPModeText">—</span>
                     </span>
                 </div>
-                <strong id="dashIP">—</strong>
+                <div class="overview-ip-row">
+                    <strong id="dashIP">—</strong>
+                    <button
+                        type="button"
+                        class="btn network-ip-edit-btn overview-ip-edit-btn"
+                        onclick="openNetworkConfiguration()">
+                        IP EDIT
+                    </button>
+                </div>
             </div>
 
             <div class="overview-item">
@@ -2696,11 +2777,6 @@ body.network-config-modal-open{
             <div class="overview-item">
                 <span class="overview-label">UPTIME</span>
                 <strong id="dashUptime">—</strong>
-            </div>
-
-            <div class="overview-item">
-                <span class="overview-label">NAS STATUS</span>
-                <strong id="dashStatusValue">ONLINE</strong>
             </div>
 
         </div>
@@ -2790,115 +2866,10 @@ body.network-config-modal-open{
         </div>
 
 
-        <!-- STORAGE -->
-        <div class="card dashboard-card dashboard-metric">
-
-            <div class="card-head">
-                <span>STORAGE</span>
-                <span id="dashStorage" class="badge">—</span>
-            </div>
-
-            <div id="dashStorageValue" class="dashboard-big-value">—</div>
-
-            <div class="dashboard-progress">
-                <div id="dashStorageBar"></div>
-            </div>
-
-            <div class="dashboard-memory-grid">
-                <div>
-                    <span>USED</span>
-                    <strong id="dashStorageUsed">—</strong>
-                </div>
-                <div>
-                    <span>FREE</span>
-                    <strong id="dashStorageFree">—</strong>
-                </div>
-                <div>
-                    <span>TOTAL</span>
-                    <strong id="dashStorageTotal">—</strong>
-                </div>
-            </div>
-
         </div>
-
-
-        <!-- NETWORK -->
-        <div class="card dashboard-card dashboard-metric">
-
-            <div class="card-head">
-                <span>NETWORK</span>
-                <span id="dashNetwork" class="badge">—</span>
-            </div>
-
-            <div class="dashboard-network-speed-row">
-
-                <div id="dashNetworkValue" class="dashboard-big-value">—</div>
-
-                <button
-                    type="button"
-                    class="btn network-ip-edit-btn"
-                    onclick="openNetworkConfiguration()">
-                    IP EDIT
-                </button>
-
-            </div>
-
-            <div class="dashboard-subtitle">
-                Network Interface
-                <strong id="dashInterface">—</strong>
-            </div>
-
-            <div class="dashboard-mini-grid">
-
-                <div>
-                    <span>RX</span>
-                    <strong id="dashRX">—</strong>
-                </div>
-
-                <div>
-                    <span>TX</span>
-                    <strong id="dashTX">—</strong>
-                </div>
-
-                <div>
-                    <span>ERRORS</span>
-                    <strong id="dashNetworkErrors">—</strong>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
 
 
 <div class="section-title">STORAGE & DISKS</div>
-
-<div id="storageOverview" class="card storage-overview">
-    <div class="card-title">STORAGE OVERVIEW</div>
-
-    <div class="storage-overview-row">
-        <div>
-            <span>TOTAL CAPACITY</span>
-            <strong id="storageTotal">—</strong>
-        </div>
-
-        <div>
-            <span>USED</span>
-            <strong id="storageUsed">—</strong>
-        </div>
-
-        <div>
-            <span>AVAILABLE</span>
-            <strong id="storageAvailable">—</strong>
-        </div>
-
-        <div>
-            <span>USAGE</span>
-            <strong id="storageUsage">—</strong>
-        </div>
-    </div>
-</div>
 
 <div id="diskGrid" class="grid">
         <div class="card loading">Loading disk information...</div>
@@ -3123,6 +3094,27 @@ function badgeClass(status){
     return "badge neutral";
 }
 
+/* ===== NAS220 STORAGE RENDER CACHE V1 ===== */
+
+window.__nasStorageRenderSignature = null;
+
+function getStorageRenderSignature(disks){
+
+    if(!Array.isArray(disks) || !disks.length){
+        return "EMPTY";
+    }
+
+    return disks.map(d => {
+
+        return [
+            d.size_kb,
+            d.used_kb,
+            d.avail_kb
+        ].map(v => String(v ?? "")).join("|");
+
+    }).join("||");
+}
+
 function renderStorageOverview(disks){
 
     const totalEl = document.getElementById("storageTotal");
@@ -3132,6 +3124,17 @@ function renderStorageOverview(disks){
 
     if(!disks || !disks.length)
         return;
+
+    const signature =
+        getStorageRenderSignature(disks);
+
+    if(
+        window.__nasStorageRenderSignature === signature
+    ){
+        return;
+    }
+
+    window.__nasStorageRenderSignature = signature;
 
     let totalKB = 0;
     let usedKB = 0;
@@ -3159,30 +3162,132 @@ function renderStorageOverview(disks){
 
     if(usageEl)
         usageEl.textContent = usage.toFixed(1) + "%";
+
+    console.log(
+        "[NAS CACHE] Storage DOM updated"
+    );
+}
+
+/* ===== END NAS220 STORAGE RENDER CACHE V1 ===== */
+
+/* ===== NAS220 DISK RENDER CACHE V1 ===== */
+
+/*
+ * Disk Render Cache
+ *
+ * The dashboard refreshes every 5 seconds.
+ * Disk data usually remains unchanged.
+ *
+ * Instead of rebuilding the complete diskGrid every cycle,
+ * generate a lightweight signature from the disk properties
+ * that are actually displayed.
+ *
+ * If the signature is identical:
+ *     DOM rendering is skipped.
+ *
+ * If the signature changes:
+ *     the disk cards are rendered normally.
+ */
+
+window.__nasDiskRenderSignature = null;
+
+function getDiskRenderSignature(disks){
+
+    if(!Array.isArray(disks) || !disks.length){
+        return "EMPTY";
+    }
+
+    return disks.map(d => {
+
+        return [
+            d.name,
+            d.device,
+            d.mount,
+            d.state,
+
+            d.size_kb,
+            d.used_kb,
+            d.avail_kb,
+            d.use,
+
+            d.health,
+            d.health_status,
+
+            d.smart,
+            d.temperature,
+            d.power_hours,
+
+            d.spindown,
+
+            Array.isArray(d.partitions)
+                ? d.partitions.length
+                : 0
+
+        ].map(v => String(v ?? "")).join("|");
+
+    }).join("||");
 }
 
 function renderDisks(disks){
 
-    const grid = document.getElementById("diskGrid");
+    const grid =
+        document.getElementById("diskGrid");
+
+    if(!grid){
+        return;
+    }
+
+    const signature =
+        getDiskRenderSignature(disks);
+
+    /*
+     * Nothing changed.
+     * Keep the existing DOM exactly as it is.
+     */
+
+    if(
+        window.__nasDiskRenderSignature === signature
+    ){
+
+        return;
+    }
+
+    /*
+     * Store the new signature before rendering.
+     */
+
+    window.__nasDiskRenderSignature =
+        signature;
 
     if(!disks || !disks.length){
+
         grid.innerHTML =
             '<div class="card">No disks detected.</div>';
+
         return;
     }
 
     grid.innerHTML = disks.map(d => {
 
-        const sizeKB = Number(d.size_kb || 0);
-        const usedKB = Number(d.used_kb || 0);
-        const availKB = Number(d.avail_kb || 0);
+        const sizeKB =
+            Number(d.size_kb || 0);
+
+        const usedKB =
+            Number(d.used_kb || 0);
+
+        const availKB =
+            Number(d.avail_kb || 0);
 
         let use =
             sizeKB > 0
                 ? (usedKB / sizeKB) * 100
                 : Number(d.use || 0);
 
-        use = Math.max(0, Math.min(100, use));
+        use =
+            Math.max(
+                0,
+                Math.min(100, use)
+            );
 
         const useText =
             use < 1
@@ -3225,11 +3330,16 @@ function renderDisks(disks){
             String(rawHealth).toUpperCase() !== "UNKNOWN";
 
         const numericHealth =
-            healthKnown ? Number(rawHealth) : NaN;
+            healthKnown
+                ? Number(rawHealth)
+                : NaN;
 
         const health =
             Number.isFinite(numericHealth)
-                ? Math.max(0, Math.min(100, numericHealth))
+                ? Math.max(
+                    0,
+                    Math.min(100, numericHealth)
+                )
                 : null;
 
         const healthStatus =
@@ -3237,21 +3347,26 @@ function renderDisks(disks){
                 ? String(d.health_status || "")
                 : "UNKNOWN";
 
-        let healthClass = "health-unknown";
+        let healthClass =
+            "health-unknown";
 
         if(health !== null){
 
             if(health >= 90){
-                healthClass = "health-excellent";
+                healthClass =
+                    "health-excellent";
 
             }else if(health >= 75){
-                healthClass = "health-good";
+                healthClass =
+                    "health-good";
 
             }else if(health >= 50){
-                healthClass = "health-warning";
+                healthClass =
+                    "health-warning";
 
             }else{
-                healthClass = "health-critical";
+                healthClass =
+                    "health-critical";
             }
         }
 
@@ -3263,9 +3378,11 @@ function renderDisks(disks){
         let smartStatus = "UNKNOWN";
         let smartClass = "smart-unknown";
 
-        const smartUpper = smart.toUpperCase();
+        const smartUpper =
+            smart.toUpperCase();
 
         if(smartUpper === "PASSED"){
+
             smartStatus = "HEALTHY";
             smartClass = "smart-passed";
 
@@ -3273,10 +3390,12 @@ function renderDisks(disks){
             smartUpper === "NOT AVAILABLE" ||
             smartUpper === "N/A"
         ){
+
             smartStatus = "N/A";
             smartClass = "smart-na";
 
         }else{
+
             smartStatus = "WARNING";
             smartClass = "smart-warning";
         }
@@ -3286,24 +3405,32 @@ function renderDisks(disks){
                 ? String(d.temperature)
                 : "N/A";
 
-        const temperatureNumber = Number(temperature);
+        const temperatureNumber =
+            Number(temperature);
 
         let temperatureStatus = "N/A";
-        let temperatureClass = "temp-unknown";
+        let temperatureClass =
+            "temp-unknown";
 
         if(Number.isFinite(temperatureNumber)){
 
             if(temperatureNumber < 45){
+
                 temperatureStatus = "NORMAL";
-                temperatureClass = "temp-normal";
+                temperatureClass =
+                    "temp-normal";
 
             }else if(temperatureNumber <= 50){
+
                 temperatureStatus = "WARM";
-                temperatureClass = "temp-warm";
+                temperatureClass =
+                    "temp-warm";
 
             }else{
+
                 temperatureStatus = "HIGH";
-                temperatureClass = "temp-high";
+                temperatureClass =
+                    "temp-high";
             }
         }
 
@@ -3312,26 +3439,37 @@ function renderDisks(disks){
                 ? String(d.power_hours)
                 : "N/A";
 
-        let healthLabel = "NOT AVAILABLE";
-        let healthLabelClass = "health-label-unknown";
+        let healthLabel =
+            "NOT AVAILABLE";
+
+        let healthLabelClass =
+            "health-label-unknown";
 
         if(health !== null){
 
             if(health >= 90){
+
                 healthLabel = "EXCELLENT";
-                healthLabelClass = "health-label-excellent";
+                healthLabelClass =
+                    "health-label-excellent";
 
             }else if(health >= 75){
+
                 healthLabel = "GOOD";
-                healthLabelClass = "health-label-good";
+                healthLabelClass =
+                    "health-label-good";
 
             }else if(health >= 50){
+
                 healthLabel = "WARNING";
-                healthLabelClass = "health-label-warning";
+                healthLabelClass =
+                    "health-label-warning";
 
             }else{
+
                 healthLabel = "CRITICAL";
-                healthLabelClass = "health-label-critical";
+                healthLabelClass =
+                    "health-label-critical";
             }
         }
 
@@ -3378,74 +3516,6 @@ function renderDisks(disks){
 
             </div>
 
-            <div class="disk-info-row">
-
-                <div>
-                    <span>SMART</span>
-                    <strong class="${smartClass}">
-                        ${esc(smart)}
-                        <small>${smartStatus}</small>
-                    </strong>
-                </div>
-
-                <div>
-                    <span>TEMP</span>
-                    <strong class="${temperatureClass}">
-                        ${esc(temperature)}
-                        ${temperature !== "N/A" ? " °C" : ""}
-                        <small>${temperatureStatus}</small>
-                    </strong>
-                </div>
-
-                <div>
-                    <span>PARTITIONS</span>
-                    <strong>
-                        ${Array.isArray(d.partitions) ? d.partitions.length : 0}
-                    </strong>
-                </div>
-
-            </div>
-
-            <div class="disk-health-header">
-
-                <span>DISK HEALTH</span>
-
-                <strong>
-                    ${healthText}
-                    <small class="${healthLabelClass}">
-                        ${healthLabel}
-                    </small>
-                </strong>
-
-            </div>
-
-            <div class="progress ${healthClass}">
-                <div
-                    class="progress-bar"
-                    style="width:${health === null ? 0 : health}%"
-                ></div>
-            </div>
-
-            <div class="disk-usage-header">
-
-                <span>STORAGE USAGE</span>
-
-                <strong>${useText}%</strong>
-
-            </div>
-
-            ${warningHTML}
-
-            <div class="progress">
-                <div
-                    class="progress-bar"
-                    style="width:${use}%"
-                ></div>
-            </div>
-
-            <div class="small" style="margin-top:10px">
-                Spindown: ${esc(d.spindown)}
-            </div>
 
             <div class="disk-card-actions">
 
@@ -3470,7 +3540,16 @@ function renderDisks(disks){
         </div>
         `;
     }).join("");
+
+    console.log(
+        "[NAS CACHE] Disk DOM rendered:",
+        disks.length,
+        "disk(s)"
+    );
 }
+
+/* ===== END NAS220 DISK RENDER CACHE V1 ===== */
+
 
 
 async function safeEjectDisk(device) {
@@ -3967,12 +4046,12 @@ function showDiskDetails(device){
                 </div>
 
                 <div>
-                    <span>STORAGE USAGE</span>
-                    <strong>${diskUsageText}%</strong>
-
-                    <div class="disk-detail-usage-bar">
-                        <div style="width:${diskUsage}%"></div>
-                    </div>
+                    <span>PARTITIONS</span>
+                    <strong>
+                        ${Array.isArray(disk.partitions)
+                            ? disk.partitions.length
+                            : 0}
+                    </strong>
                 </div>
 
                 <div>
@@ -6235,6 +6314,29 @@ async function toggleServer(service, action, label){
 }
 
 
+/* ===== NAS220 SPINDOWN RENDER CACHE V1 ===== */
+
+window.__nasSpindownRenderSignature = null;
+
+function getSpindownRenderSignature(disks){
+
+    if(!Array.isArray(disks) || !disks.length){
+        return "EMPTY";
+    }
+
+    return disks.map(d => {
+
+        return [
+            d.label,
+            d.device,
+            d.type,
+            d.timer,
+            d.state
+        ].map(v => String(v ?? "")).join("|");
+
+    }).join("||");
+}
+
 function renderSpindownDisks(disks){
 
     const container =
@@ -6243,10 +6345,25 @@ function renderSpindownDisks(disks){
     if(!container)
         return;
 
+    const signature =
+        getSpindownRenderSignature(disks);
+
+    if(
+        window.__nasSpindownRenderSignature === signature
+    ){
+        return;
+    }
+
+    window.__nasSpindownRenderSignature = signature;
+
     if(!disks || !disks.length){
 
         container.innerHTML =
             '<div class="server-meta">No disks detected.</div>';
+
+        console.log(
+            "[NAS CACHE] Spindown DOM rendered: empty"
+        );
 
         return;
     }
@@ -6315,8 +6432,44 @@ function renderSpindownDisks(disks){
         `;
 
     }).join("");
+
+    console.log(
+        "[NAS CACHE] Spindown DOM rendered:",
+        disks.length,
+        "disk(s)"
+    );
 }
 
+/* ===== END NAS220 SPINDOWN RENDER CACHE V1 ===== */
+
+
+/* ===== NAS220 SECURITY RENDER CACHE V1 ===== */
+
+window.__nasSecurityRenderSignature = null;
+
+function getSecurityRenderSignature(servers, connections){
+
+    const serverSignature =
+        Array.isArray(servers)
+            ? servers.map(s => {
+
+                return [
+                    s.name,
+                    s.label,
+                    s.state,
+                    s.port
+                ].map(v => String(v ?? "")).join("|");
+
+            }).join("||")
+            : "EMPTY";
+
+    const connectionSignature = [
+        Number(connections && connections.established || 0),
+        Number(connections && connections.listening || 0)
+    ].join("|");
+
+    return serverSignature + "###" + connectionSignature;
+}
 
 function renderSecurityCenter(servers, connections){
 
@@ -6325,17 +6478,38 @@ function renderSecurityCenter(servers, connections){
     if(!grid)
         return;
 
+    const signature =
+        getSecurityRenderSignature(
+            servers,
+            connections
+        );
+
+    if(
+        window.__nasSecurityRenderSignature === signature
+    ){
+        return;
+    }
+
+    window.__nasSecurityRenderSignature = signature;
+
     if(!servers || !servers.length){
+
         grid.innerHTML =
             '<div class="card">' +
             '<div class="card-title">SECURITY STATUS</div>' +
             '<div class="small">No server services detected.</div>' +
             '</div>';
+
+        console.log(
+            "[NAS CACHE] Security DOM rendered: empty"
+        );
+
         return;
     }
 
     let runningCount = 0;
     let stoppedCount = 0;
+
     const cards = servers.map(s => {
 
         const name =
@@ -6466,8 +6640,6 @@ function renderSecurityCenter(servers, connections){
                 </span>
             </div>
 
-
-
         </div>
 
         ${cards}
@@ -6492,15 +6664,70 @@ function renderSecurityCenter(servers, connections){
         });
 
     });
+
+    console.log(
+        "[NAS CACHE] Security DOM rendered:",
+        servers.length,
+        "service(s)"
+    );
+}
+
+/* ===== END NAS220 SECURITY RENDER CACHE V1 ===== */
+
+/* ===== NAS220 PORT RENDER CACHE V1 ===== */
+
+window.__nasPortRenderSignature = null;
+
+function getPortRenderSignature(ports){
+
+    if(!Array.isArray(ports) || !ports.length){
+        return "EMPTY";
+    }
+
+    return ports.map(p => {
+
+        return [
+            p.port,
+            p.protocol,
+            p.state,
+            p.service,
+            p.name
+        ].map(v => String(v ?? "")).join("|");
+
+    }).join("||");
 }
 
 function renderPorts(ports){
 
-    const grid = document.getElementById("portGrid");
+    const grid =
+        document.getElementById("portGrid");
+
+    if(!grid){
+        return;
+    }
+
+    const signature =
+        getPortRenderSignature(ports);
+
+    /*
+     * No change.
+     * Keep the existing DOM untouched.
+     */
+
+    if(
+        window.__nasPortRenderSignature === signature
+    ){
+        return;
+    }
+
+    window.__nasPortRenderSignature =
+        signature;
 
     if(!ports || !ports.length){
+
         grid.innerHTML =
             '<div class="card">No listening ports detected.</div>';
+
         return;
     }
 
@@ -6526,7 +6753,20 @@ function renderPorts(ports){
             </div>
         </div>
     `;
+
+    console.log(
+        "[NAS CACHE] Port DOM rendered:",
+        ports.length,
+        "port(s)"
+    );
 }
+
+/* ===== END NAS220 PORT RENDER CACHE V1 ===== */
+
+
+/* ===== NAS220 SYSTEM DOM CACHE V1 ===== */
+
+window.__nasSystemDOMCache = Object.create(null);
 
 function updateSystem(data){
 
@@ -6534,17 +6774,39 @@ function updateSystem(data){
     const load = data && data.load ? data.load : {};
 
     function setText(id, value){
+
         const el = document.getElementById(id);
-        if(el){
-            el.textContent = value;
+
+        if(!el)
+            return;
+
+        const text = String(value);
+
+        if(window.__nasSystemDOMCache[id] === text){
+            return;
         }
+
+        window.__nasSystemDOMCache[id] = text;
+        el.textContent = text;
     }
 
     function setWidth(id, value){
+
         const el = document.getElementById(id);
-        if(el){
-            el.style.width = value;
+
+        if(!el)
+            return;
+
+        const width = String(value);
+
+        const cacheKey = id + ":width";
+
+        if(window.__nasSystemDOMCache[cacheKey] === width){
+            return;
         }
+
+        window.__nasSystemDOMCache[cacheKey] = width;
+        el.style.width = width;
     }
 
     setText("hostname", s.hostname || "—");
@@ -6573,33 +6835,104 @@ function updateSystem(data){
     setText("load15", load.load15 ?? "—");
 }
 
+/* ===== END NAS220 SYSTEM DOM CACHE V1 ===== */
+
+/* ===== NAS220 DASHBOARD DOM CACHE V1 ===== */
+
+window.__nasDashboardDOMCache =
+    window.__nasDashboardDOMCache || Object.create(null);
+
 function updateNASDashboard(data){
 
     const system  = data.system || {};
     const load    = data.load || {};
     const network = data.network || {};
     const disks   = Array.isArray(data.disks) ? data.disks : [];
-    const servers = Array.isArray(data.servers) ? data.servers : [];
-    const ports   = Array.isArray(data.ports) ? data.ports : [];
 
-    /* =========================================================
-       HELPERS
-       ========================================================= */
+    const domCache = window.__nasDashboardDOMCache;
 
     function setText(id, value){
+
         const el = document.getElementById(id);
-        if(el) el.textContent = value;
+
+        if(!el)
+            return;
+
+        const text = String(value);
+
+        if(domCache["text:" + id] === text)
+            return;
+
+        domCache["text:" + id] = text;
+        el.textContent = text;
     }
 
     function setBadge(id, text, type){
-        const el = document.getElementById(id);
-        if(!el) return;
 
-        el.textContent = text;
-        el.className = "badge " + type;
+        const el = document.getElementById(id);
+
+        if(!el)
+            return;
+
+        const badgeText = String(text);
+        const badgeClass = "badge " + type;
+
+        const textKey = "badge-text:" + id;
+        const classKey = "badge-class:" + id;
+
+        if(
+            domCache[textKey] === badgeText &&
+            domCache[classKey] === badgeClass
+        ){
+            return;
+        }
+
+        domCache[textKey] = badgeText;
+        domCache[classKey] = badgeClass;
+
+        el.textContent = badgeText;
+        el.className = badgeClass;
+    }
+
+    function setWidth(id, value){
+
+        const el = document.getElementById(id);
+
+        if(!el)
+            return;
+
+        const width = String(value);
+        const key = "width:" + id;
+
+        if(domCache[key] === width)
+            return;
+
+        domCache[key] = width;
+        el.style.width = width;
+    }
+
+    function setClassState(id, classes, activeClass){
+
+        const el = document.getElementById(id);
+
+        if(!el)
+            return;
+
+        const key = "class-state:" + id;
+
+        if(domCache[key] === activeClass)
+            return;
+
+        domCache[key] = activeClass;
+
+        el.classList.remove(...classes);
+
+        if(activeClass)
+            el.classList.add(activeClass);
     }
 
     function formatBytes(bytes){
+
         bytes = Number(bytes || 0);
 
         if(bytes < 1024)
@@ -6618,61 +6951,57 @@ function updateNASDashboard(data){
         return formatBytes(Number(kb || 0) * 1024);
     }
 
-    /* =========================================================
-       SYSTEM OVERVIEW
-       ========================================================= */
+    /* SYSTEM OVERVIEW */
 
     setText("dashHostname", system.hostname || "—");
     setText("dashModel", system.model || "—");
     setText("dashKernel", system.kernel || "—");
     setText("dashIP", system.ip || "—");
 
-    /* MAC ADDRESS */
-    const dashMAC = document.getElementById("dashMAC");
-    if(dashMAC){
-        const networkMAC = String(
-            (window.__nasNetworkCenter || {}).mac || "—"
-        ).replace(/\\/g, "");
-        dashMAC.textContent = networkMAC;
-    }
+    const networkMAC = String(
+        (window.__nasNetworkCenter || {}).mac || "—"
+    ).replace(/\\/g, "");
 
-    /* IP ADDRESS NETWORK MODE */
-    const ipModeBadge = document.getElementById("dashIPMode");
-    const ipModeText = document.getElementById("dashIPModeText");
+    setText("dashMAC", networkMAC);
 
-    if(ipModeBadge && ipModeText){
+    const networkMode =
+        String(
+            (window.__nasNetworkCenter || {}).mode || "static"
+        ).toLowerCase();
 
-        const networkMode =
-            String(
-                (window.__nasNetworkCenter || {}).mode || "static"
-            ).toLowerCase();
+    setText(
+        "dashIPModeText",
+        networkMode === "dhcp" ? "DHCP" : "MANUAL"
+    );
 
-        if(networkMode === "dhcp"){
-            ipModeText.textContent = "DHCP";
-            ipModeBadge.classList.remove("manual");
-            ipModeBadge.classList.add("dhcp");
-        }else{
-            ipModeText.textContent = "MANUAL";
-            ipModeBadge.classList.remove("dhcp");
-            ipModeBadge.classList.add("manual");
-        }
-    }
+    setClassState(
+        "dashIPMode",
+        ["manual", "dhcp"],
+        networkMode === "dhcp" ? "dhcp" : "manual"
+    );
 
     if(typeof formatUptime === "function"){
-        setText("dashUptime", formatUptime(system.uptime || 0));
+
+        setText(
+            "dashUptime",
+            formatUptime(system.uptime || 0)
+        );
+
     }else{
-        setText("dashUptime", String(system.uptime || 0) + " sec");
+
+        setText(
+            "dashUptime",
+            String(system.uptime || 0) + " sec"
+        );
     }
 
     setText("dashStatusValue", "ONLINE");
     setBadge("systemStatus", "ONLINE", "good");
 
-    /* =========================================================
-       CPU LOAD
-       ========================================================= */
+    /* CPU */
 
-    const load1  = Number(load.load1 || 0);
-    const load5  = Number(load.load5 || 0);
+    const load1 = Number(load.load1 || 0);
+    const load5 = Number(load.load5 || 0);
     const load15 = Number(load.load15 || 0);
 
     setText("dashCpuValue", load1.toFixed(2));
@@ -6680,166 +7009,198 @@ function updateNASDashboard(data){
     setText("dashLoad5", load5.toFixed(2));
     setText("dashLoad15", load15.toFixed(2));
 
-    /* =========================================================
-       CPU PRESSURE BAR
-       Based on 1-minute system load
-       ========================================================= */
-
-    const cpuPressureBar =
-        document.getElementById("dashCpuPressureBar");
-
-    const cpuPressurePercent =
-        document.getElementById("dashCpuPressurePercent");
-
-    /*
-       Visual scale:
-       0.00 load  = 0%
-       1.00 load  = 25%
-       2.00 load  = 50%
-       3.00 load  = 75%
-       4.00+ load = 100%
-    */
-
     const cpuPressure =
-        Math.min(100, Math.max(0, (load1 / 4) * 100));
+        Math.min(
+            100,
+            Math.max(0, (load1 / 4) * 100)
+        );
 
-    if(cpuPressureBar){
-        cpuPressureBar.style.width =
-            cpuPressure.toFixed(0) + "%";
-    }
+    const cpuPressureValue =
+        cpuPressure.toFixed(0) + "%";
 
-    if(cpuPressurePercent){
-        cpuPressurePercent.textContent =
-            cpuPressure.toFixed(0) + "%";
-    }
+    setWidth(
+        "dashCpuPressureBar",
+        cpuPressureValue
+    );
+
+    setText(
+        "dashCpuPressurePercent",
+        cpuPressureValue
+    );
 
     if(load1 < 1){
+
         setBadge("dashCpu", "LOW", "good");
+
     }else if(load1 < 3){
+
         setBadge("dashCpu", "NORMAL", "good");
+
     }else if(load1 < 6){
+
         setBadge("dashCpu", "HIGH", "warn");
+
     }else{
+
         setBadge("dashCpu", "CRITICAL", "bad");
     }
 
-    /* =========================================================
-       PROCESS MANAGER BUTTON COLOR
-       Follows CPU LOAD status
-       ========================================================= */
+    let processClass = "process-critical";
 
-    const processButton =
-        document.getElementById("processManagerButton");
+    if(load1 < 1){
 
-    if(processButton){
+        processClass = "process-low";
 
-        processButton.classList.remove(
+    }else if(load1 < 3){
+
+        processClass = "process-normal";
+
+    }else if(load1 < 6){
+
+        processClass = "process-high";
+    }
+
+    setClassState(
+        "processManagerButton",
+        [
             "process-low",
             "process-normal",
             "process-high",
             "process-critical"
-        );
+        ],
+        processClass
+    );
 
-        if(load1 < 1){
-
-            processButton.classList.add("process-low");
-
-        }else if(load1 < 3){
-
-            processButton.classList.add("process-normal");
-
-        }else if(load1 < 6){
-
-            processButton.classList.add("process-high");
-
-        }else{
-
-            processButton.classList.add("process-critical");
-        }
-    }
-
-    /* =========================================================
-       RAM
-       ========================================================= */
+    /* RAM */
 
     const memTotal = Number(system.mem_total || 0);
     const memUsed  = Number(system.mem_used || 0);
     const memFree  = Math.max(0, memTotal - memUsed);
 
-    const ramPercent = memTotal > 0
-        ? Math.round((memUsed / memTotal) * 100)
-        : 0;
+    const ramPercent =
+        memTotal > 0
+            ? Math.round((memUsed / memTotal) * 100)
+            : 0;
 
     setText("dashRamValue", ramPercent + "%");
     setText("dashRamUsed", formatKB(memUsed));
     setText("dashRamFree", formatKB(memFree));
     setText("dashRamTotal", formatKB(memTotal));
 
-    const ramBar = document.getElementById("dashRamBar");
-    if(ramBar){
-        ramBar.style.width = Math.min(100, ramPercent) + "%";
-    }
+    setWidth(
+        "dashRamBar",
+        Math.min(100, ramPercent) + "%"
+    );
 
     if(ramPercent < 70){
+
         setBadge("dashRam", "GOOD", "good");
+
     }else if(ramPercent < 85){
+
         setBadge("dashRam", "WARNING", "warn");
+
     }else{
+
         setBadge("dashRam", "CRITICAL", "bad");
     }
 
-    /* =========================================================
-       STORAGE
-       ========================================================= */
+    /* STORAGE */
 
     let totalKB = 0;
     let usedKB  = 0;
     let freeKB  = 0;
 
     disks.forEach(function(disk){
+
         totalKB += Number(disk.size_kb || 0);
         usedKB  += Number(disk.used_kb || 0);
         freeKB  += Number(disk.avail_kb || 0);
+
     });
 
-    const storagePercent = totalKB > 0
-        ? Math.round((usedKB / totalKB) * 100)
-        : 0;
+    const storagePercent =
+        totalKB > 0
+            ? Math.round((usedKB / totalKB) * 100)
+            : 0;
 
-    setText("dashStorageValue", storagePercent + "%");
-    setText("dashStorageUsed", formatKB(usedKB));
-    setText("dashStorageFree", formatKB(freeKB));
-    setText("dashStorageTotal", formatKB(totalKB));
+    setText(
+        "dashStorageValue",
+        storagePercent + "%"
+    );
 
-    const storageBar = document.getElementById("dashStorageBar");
-    if(storageBar){
-        storageBar.style.width =
-            Math.min(100, storagePercent) + "%";
-    }
+    setText(
+        "dashStorageUsed",
+        formatKB(usedKB)
+    );
+
+    setText(
+        "dashStorageFree",
+        formatKB(freeKB)
+    );
+
+    setText(
+        "dashStorageTotal",
+        formatKB(totalKB)
+    );
+
+    setWidth(
+        "dashStorageBar",
+        Math.min(100, storagePercent) + "%"
+    );
 
     if(storagePercent < 70){
-        setBadge("dashStorage", "HEALTHY", "good");
+
+        setBadge(
+            "dashStorage",
+            "HEALTHY",
+            "good"
+        );
+
     }else if(storagePercent < 85){
-        setBadge("dashStorage", "WARNING", "warn");
+
+        setBadge(
+            "dashStorage",
+            "WARNING",
+            "warn"
+        );
+
     }else if(storagePercent < 95){
-        setBadge("dashStorage", "CRITICAL", "bad");
+
+        setBadge(
+            "dashStorage",
+            "CRITICAL",
+            "bad"
+        );
+
     }else{
-        setBadge("dashStorage", "FULL", "bad");
+
+        setBadge(
+            "dashStorage",
+            "FULL",
+            "bad"
+        );
     }
 
-    /* =========================================================
-       NETWORK
-       ========================================================= */
+    /* NETWORK */
 
-    const link  = String(network.link || "").toUpperCase();
-    const speed = Number(network.speed_mbps || 0);
+    const link =
+        String(network.link || "").toUpperCase();
+
+    const speed =
+        Number(network.speed_mbps || 0);
 
     setText(
         "dashNetworkValue",
-        speed > 0 ? speed + " Mbps" : "—"
+        speed > 0
+            ? speed + " Mbps"
+            : "—"
     );
 
-    setText("dashInterface", network.interface || "—");
+    setText(
+        "dashInterface",
+        network.interface || "—"
+    );
 
     setText(
         "dashRX",
@@ -6851,23 +7212,48 @@ function updateNASDashboard(data){
         formatBytes(network.tx_bytes || 0)
     );
 
-    const rxErrors = Number(network.rx_errors || 0);
-    const txErrors = Number(network.tx_errors || 0);
-    const rxDrop   = Number(network.rx_drop || 0);
-    const txDrop   = Number(network.tx_drop || 0);
+    const rxErrors =
+        Number(network.rx_errors || 0);
+
+    const txErrors =
+        Number(network.tx_errors || 0);
+
+    const rxDrop =
+        Number(network.rx_drop || 0);
+
+    const txDrop =
+        Number(network.tx_drop || 0);
 
     const networkErrors =
-        rxErrors + txErrors + rxDrop + txDrop;
+        rxErrors +
+        txErrors +
+        rxDrop +
+        txDrop;
 
-    setText("dashNetworkErrors", networkErrors);
+    setText(
+        "dashNetworkErrors",
+        networkErrors
+    );
 
     if(link === "UP"){
-        setBadge("dashNetwork", "ONLINE", "good");
-    }else{
-        setBadge("dashNetwork", "OFFLINE", "bad");
-    }
 
+        setBadge(
+            "dashNetwork",
+            "ONLINE",
+            "good"
+        );
+
+    }else{
+
+        setBadge(
+            "dashNetwork",
+            "OFFLINE",
+            "bad"
+        );
+    }
 }
+
+/* ===== END NAS220 DASHBOARD DOM CACHE V1 ===== */
 
 function formatBytes(bytes){
 
@@ -6961,13 +7347,521 @@ async function shutdownNAS(){
 }
 
 
+
+/* ===== NAS220 CACHE CORE V1 ===== */
+
+const NAS_CACHE_VERSION = "nas220-cache-v1";
+
+const NAS_CACHE_TTL = {
+    snapshot: 5000,
+    system: 30000,
+    storage: 10000,
+    network: 5000,
+    security: 15000,
+    ports: 15000,
+    processes: 5000,
+    logs: 15000,
+    spindown: 30000,
+    ui: 86400000
+};
+
+const CacheManager = (() => {
+
+    const memory = new Map();
+
+    const DB_NAME = "NAS220_CACHE";
+    const DB_VERSION = 1;
+    const STORE_NAME = "data";
+
+    let dbPromise = null;
+
+    function storageKey(key) {
+        return "NAS220:" + NAS_CACHE_VERSION + ":" + key;
+    }
+
+    function openDB() {
+        if (dbPromise) return dbPromise;
+
+        dbPromise = new Promise((resolve, reject) => {
+
+            if (!window.indexedDB) {
+                resolve(null);
+                return;
+            }
+
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+            request.onupgradeneeded = function(event) {
+                const db = event.target.result;
+
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME);
+                }
+            };
+
+            request.onsuccess = function(event) {
+                resolve(event.target.result);
+            };
+
+            request.onerror = function() {
+                resolve(null);
+            };
+        });
+
+        return dbPromise;
+    }
+
+    async function idbSet(key, value) {
+
+        const db = await openDB();
+
+        if (!db) return false;
+
+        return new Promise(resolve => {
+
+            try {
+
+                const tx = db.transaction(STORE_NAME, "readwrite");
+
+                tx.objectStore(STORE_NAME).put({
+                    value: value,
+                    time: Date.now()
+                }, key);
+
+                tx.oncomplete = () => resolve(true);
+                tx.onerror = () => resolve(false);
+                tx.onabort = () => resolve(false);
+
+            } catch (e) {
+                resolve(false);
+            }
+        });
+    }
+
+    async function idbGet(key) {
+
+        const db = await openDB();
+
+        if (!db) return null;
+
+        return new Promise(resolve => {
+
+            try {
+
+                const tx = db.transaction(STORE_NAME, "readonly");
+                const request = tx.objectStore(STORE_NAME).get(key);
+
+                request.onsuccess = function() {
+                    resolve(request.result || null);
+                };
+
+                request.onerror = function() {
+                    resolve(null);
+                };
+
+            } catch (e) {
+                resolve(null);
+            }
+        });
+    }
+
+    async function idbDelete(key) {
+
+        const db = await openDB();
+
+        if (!db) return false;
+
+        return new Promise(resolve => {
+
+            try {
+
+                const tx = db.transaction(STORE_NAME, "readwrite");
+
+                tx.objectStore(STORE_NAME).delete(key);
+
+                tx.oncomplete = () => resolve(true);
+                tx.onerror = () => resolve(false);
+
+            } catch (e) {
+                resolve(false);
+            }
+        });
+    }
+
+    async function idbClear() {
+
+        const db = await openDB();
+
+        if (!db) return false;
+
+        return new Promise(resolve => {
+
+            try {
+
+                const tx = db.transaction(STORE_NAME, "readwrite");
+
+                tx.objectStore(STORE_NAME).clear();
+
+                tx.oncomplete = () => resolve(true);
+                tx.onerror = () => resolve(false);
+
+            } catch (e) {
+                resolve(false);
+            }
+        });
+    }
+
+    function localSet(key, value) {
+
+        try {
+
+            localStorage.setItem(
+                storageKey(key),
+                JSON.stringify({
+                    value: value,
+                    time: Date.now()
+                })
+            );
+
+            return true;
+
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function localGet(key) {
+
+        try {
+
+            const raw = localStorage.getItem(storageKey(key));
+
+            if (!raw) return null;
+
+            return JSON.parse(raw);
+
+        } catch (e) {
+
+            try {
+                localStorage.removeItem(storageKey(key));
+            } catch (_) {}
+
+            return null;
+        }
+    }
+
+    function localDelete(key) {
+
+        try {
+            localStorage.removeItem(storageKey(key));
+        } catch (_) {}
+    }
+
+    function isExpired(item, ttl) {
+
+        if (!item || !item.time) return true;
+
+        if (!ttl) return false;
+
+        return (Date.now() - item.time) > ttl;
+    }
+
+    async function set(key, value, options = {}) {
+
+        const ttl = options.ttl || 0;
+
+        const item = {
+            value: value,
+            time: Date.now(),
+            ttl: ttl,
+            version: NAS_CACHE_VERSION
+        };
+
+        memory.set(key, item);
+
+        await idbSet(key, item);
+
+        if (options.localStorage === true) {
+            localSet(key, item);
+        }
+
+        return true;
+    }
+
+    async function get(key, options = {}) {
+
+        const ttl = options.ttl || 0;
+
+        let item = memory.get(key);
+
+        if (item) {
+
+            if (!isExpired(item, ttl)) {
+                return {
+                    value: item.value,
+                    stale: false,
+                    source: "memory",
+                    age: Date.now() - item.time
+                };
+            }
+
+            return {
+                value: item.value,
+                stale: true,
+                source: "memory",
+                age: Date.now() - item.time
+            };
+        }
+
+        item = await idbGet(key);
+
+        if (item && item.value) {
+
+            memory.set(key, item);
+
+            return {
+                value: item.value,
+                stale: isExpired(item, ttl),
+                source: "indexedDB",
+                age: Date.now() - item.time
+            };
+        }
+
+        item = localGet(key);
+
+        if (item && item.value) {
+
+            memory.set(key, item);
+
+            return {
+                value: item.value,
+                stale: isExpired(item, ttl),
+                source: "localStorage",
+                age: Date.now() - item.time
+            };
+        }
+
+        return null;
+    }
+
+    async function remove(key) {
+
+        memory.delete(key);
+
+        await idbDelete(key);
+
+        localDelete(key);
+
+        return true;
+    }
+
+    async function invalidate(keys) {
+
+        if (!Array.isArray(keys)) {
+            keys = [keys];
+        }
+
+        for (const key of keys) {
+            await remove(key);
+        }
+
+        return true;
+    }
+
+    async function clear() {
+
+        memory.clear();
+
+        await idbClear();
+
+        try {
+
+            const prefix = "NAS220:" + NAS_CACHE_VERSION + ":";
+
+            const removeKeys = [];
+
+            for (let i = 0; i < localStorage.length; i++) {
+
+                const key = localStorage.key(i);
+
+                if (key && key.indexOf(prefix) === 0) {
+                    removeKeys.push(key);
+                }
+            }
+
+            removeKeys.forEach(key => localStorage.removeItem(key));
+
+        } catch (_) {}
+
+        return true;
+    }
+
+    function stats() {
+
+        return {
+            version: NAS_CACHE_VERSION,
+            memoryEntries: memory.size,
+            db: DB_NAME,
+            ttl: NAS_CACHE_TTL
+        };
+    }
+
+    return {
+        set,
+        get,
+        remove,
+        invalidate,
+        clear,
+        stats,
+        version: NAS_CACHE_VERSION,
+        ttl: NAS_CACHE_TTL
+    };
+
+})();
+
+window.CacheManager = CacheManager;
+
+console.log("[NAS CACHE] Core loaded:", NAS_CACHE_VERSION);
+
+/* ===== END NAS220 CACHE CORE V1 ===== */
+
+
+/* ===== NAS220 CACHE LOADDATA V1 ===== */
+
 async function loadData(manual=false){
 
     const isFirstLoad = !window.__nasInitialLoaded;
 
+    /*
+     * CACHE STRATEGY
+     *
+     * First page load:
+     *   1. Try cached snapshot immediately.
+     *   2. Render cached data.
+     *   3. Fetch fresh data in background.
+     *
+     * Manual refresh:
+     *   Always fetches live data.
+     */
+
+    if(isFirstLoad && !manual){
+
+        try{
+
+            const cached =
+                await CacheManager.get(
+                    "nas.snapshot",
+                    {
+                        ttl: CacheManager.ttl.snapshot
+                    }
+                );
+
+            if(cached && cached.value){
+
+                const cachedData = cached.value;
+
+                window.__nasNetworkCenter =
+                    cachedData.network_center || {};
+
+                window.__nasDisks =
+                    cachedData.disks || [];
+
+                window.__nasLogs =
+                    cachedData.logs || [];
+
+                window.__nasProcesses =
+                    cachedData.processes || [];
+
+                updateSystem(cachedData);
+                updateNASDashboard(cachedData);
+                renderStorageOverview(cachedData.disks);
+                renderDisks(cachedData.disks);
+
+                /*
+                 * Disk Details remains static while open.
+                 */
+
+                renderSecurityCenter(
+                    cachedData.servers,
+                    cachedData.connections
+                );
+
+                renderSpindownDisks(
+                    cachedData.spindown_disks
+                );
+
+                renderPorts(
+                    cachedData.ports
+                );
+
+                const cachedUpdateEl =
+                    document.getElementById("lastUpdate");
+
+                if(cachedUpdateEl){
+
+                    const age =
+                        Math.max(
+                            0,
+                            Math.floor(
+                                cached.age / 1000
+                            )
+                        );
+
+                    cachedUpdateEl.textContent =
+                        "CACHE • " +
+                        age +
+                        "s ago";
+                }
+
+                const cachedStatusEl =
+                    document.getElementById("systemStatus");
+
+                if(cachedStatusEl){
+
+                    cachedStatusEl.textContent =
+                        "ONLINE";
+
+                    cachedStatusEl.className =
+                        "badge good";
+                }
+
+                /*
+                 * Mark the UI as already initialized.
+                 * This prevents the loading overlay from appearing
+                 * while the fresh background request is running.
+                 */
+
+                window.__nasInitialLoaded = true;
+
+                console.log(
+                    "[NAS CACHE] Snapshot restored:",
+                    cached.source,
+                    cached.age + "ms old"
+                );
+            }
+
+        }catch(cacheError){
+
+            console.warn(
+                "[NAS CACHE] Snapshot restore failed:",
+                cacheError
+            );
+        }
+    }
+
+    /*
+     * LIVE BACKGROUND REFRESH
+     */
+
     try{
 
-        if(isFirstLoad || manual){
+        if(isFirstLoad && !window.__nasInitialLoaded){
+
+            document.body.classList.add("loading");
+        }
+
+        if(manual){
+
             document.body.classList.add("loading");
         }
 
@@ -6979,19 +7873,59 @@ async function loadData(manual=false){
         );
 
         if(!response.ok)
-            throw new Error("HTTP " + response.status);
+            throw new Error(
+                "HTTP " + response.status
+            );
 
         const data = await response.json();
 
-window.__nasNetworkCenter = data.network_center || {};
+        /*
+         * Save the complete NAS snapshot.
+         *
+         * The backend response remains the source of truth.
+         * Cache is only an acceleration layer.
+         */
 
-        window.__nasDisks = data.disks || [];
-        window.__nasLogs = data.logs || [];
-        window.__nasProcesses = data.processes || [];
+        try{
+
+            await CacheManager.set(
+                "nas.snapshot",
+                data,
+                {
+                    ttl: CacheManager.ttl.snapshot
+                }
+            );
+
+        }catch(cacheSaveError){
+
+            console.warn(
+                "[NAS CACHE] Snapshot save failed:",
+                cacheSaveError
+            );
+        }
+
+        window.__nasNetworkCenter =
+            data.network_center || {};
+
+        window.__nasDisks =
+            data.disks || [];
+
+        window.__nasLogs =
+            data.logs || [];
+
+        window.__nasProcesses =
+            data.processes || [];
+
+        /*
+         * Update the dashboard with fresh data.
+         */
 
         updateSystem(data);
+
         updateNASDashboard(data);
+
         renderStorageOverview(data.disks);
+
         renderDisks(data.disks);
 
         /*
@@ -6999,40 +7933,71 @@ window.__nasNetworkCenter = data.network_center || {};
          * The main dashboard continues to refresh normally.
          */
 
-        renderSecurityCenter(data.servers, data.connections);
-        
-        renderSpindownDisks(data.spindown_disks);
-            renderPorts(data.ports);
+        renderSecurityCenter(
+            data.servers,
+            data.connections
+        );
 
-        const lastUpdateEl = document.getElementById("lastUpdate");
+        renderSpindownDisks(
+            data.spindown_disks
+        );
+
+        renderPorts(
+            data.ports
+        );
+
+        const lastUpdateEl =
+            document.getElementById("lastUpdate");
+
         if(lastUpdateEl){
+
             lastUpdateEl.textContent =
                 new Date().toLocaleTimeString();
         }
 
-        const systemStatusEl = document.getElementById("systemStatus");
+        const systemStatusEl =
+            document.getElementById("systemStatus");
+
         if(systemStatusEl){
-            systemStatusEl.textContent = "ONLINE";
-            systemStatusEl.className = "badge good";
+
+            systemStatusEl.textContent =
+                "ONLINE";
+
+            systemStatusEl.className =
+                "badge good";
         }
+
+        console.log(
+            "[NAS CACHE] Live snapshot updated"
+        );
 
     }catch(error){
 
-        console.error(error);
+        console.error(
+            "[NAS] loadData:",
+            error
+        );
+
+        /*
+         * If the live backend fails but a cached snapshot
+         * was already displayed, keep the cached UI visible.
+         */
 
         const systemStatusErrorEl =
             document.getElementById("systemStatus");
 
         if(systemStatusErrorEl){
-            systemStatusErrorEl.textContent = "ERROR";
-            systemStatusErrorEl.className = "badge bad";
+
+            systemStatusErrorEl.textContent =
+                "CACHE";
+
+            systemStatusErrorEl.className =
+                "badge good";
         }
 
     }finally{
 
-        if(isFirstLoad || manual){
-            document.body.classList.remove("loading");
-        }
+        document.body.classList.remove("loading");
 
         window.__nasInitialLoaded = true;
     }
@@ -7044,6 +8009,8 @@ setInterval(
     () => loadData(false),
     5000
 );
+
+/* ===== END NAS220 CACHE LOADDATA V1 ===== */
 
 
 /* ===================================================== */
@@ -7387,5 +8354,56 @@ async function testNetworkApplyButton(){
 
 }
 </script>
+
+<script>
+/* ===== IP EDIT DYNAMIC MODE ===== */
+(function(){
+
+    function updateIPEditButtonMode(){
+        const modeEl = document.getElementById("dashIPModeText");
+        const btn = document.querySelector(".overview-ip-edit-btn");
+
+        if(!modeEl || !btn) return;
+
+        const mode = (modeEl.textContent || "").trim().toUpperCase();
+
+        btn.classList.remove("ip-edit-manual", "ip-edit-dhcp");
+
+        if(mode.includes("DHCP")){
+            btn.classList.add("ip-edit-dhcp");
+        }
+        else if(mode.includes("MANUAL") || mode.includes("STATIC")){
+            btn.classList.add("ip-edit-manual");
+        }
+    }
+
+    function initIPEditDynamicColor(){
+
+        updateIPEditButtonMode();
+
+        const modeEl = document.getElementById("dashIPModeText");
+
+        if(!modeEl) return;
+
+        const observer = new MutationObserver(function(){
+            updateIPEditButtonMode();
+        });
+
+        observer.observe(modeEl, {
+            childList:true,
+            characterData:true,
+            subtree:true
+        });
+    }
+
+    if(document.readyState === "loading"){
+        document.addEventListener("DOMContentLoaded", initIPEditDynamicColor);
+    }else{
+        initIPEditDynamicColor();
+    }
+
+})();
+</script>
+
 </body>
 </html>
